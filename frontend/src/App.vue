@@ -25,7 +25,7 @@
       <div class="sidebar-footer">
         <div class="footer-title">说明</div>
         <p class="footer-text">
-          数据来自招聘网站小样本采样 / 公开数据集，仅用于课程可视化作业。
+          数据来自招聘平台小样本采样 / 公开数据集，仅用于课程可视化作业分析。
         </p>
       </div>
     </aside>
@@ -40,25 +40,39 @@
       </header>
 
       <section class="content-body">
-        <!-- 根据当前 tab 展示不同内容（先用占位） -->
+        <!-- 总体概览 -->
         <div v-if="activeView === 'overview'">
           <h2>总体概览</h2>
-          <p>这里后面会放整体 KPI、总体岗位数量趋势等可视化图。</p>
+          <p>
+            这里后面会放整体 KPI、总体岗位数量趋势等可视化图，比如不同公司的岗位数量、平均薪资、城市分布等。
+          </p>
         </div>
 
+        <!-- 公司对比 -->
         <div v-else-if="activeView === 'company'">
           <h2>公司对比</h2>
-          <p>这里后面会放 9 家大厂的薪资区间分布、岗位数量对比图。</p>
+          <p style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">
+            参考脉脉「大厂薪资地图」，对比不同公司的应届技术岗年薪与研发岗年薪区间分布，观察哪些公司更「豪」。
+          </p>
+          <CompanySalaryCompare />
         </div>
 
+        <!-- 城市分析 -->
         <div v-else-if="activeView === 'city'">
           <h2>城市分析</h2>
-          <p>这里后面会放不同城市的岗位分布、平均薪资与生活成本对比。</p>
+          <p style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">
+            基于「第一梯队 / 第二梯队」图中列出的工作地点，统计 9 家大厂在各城市的覆盖情况，
+            并按照一线 / 新一线城市做能级对比。
+          </p>
+          <CityDistribution />
         </div>
-
+        
+        <!-- 工作强度分析 -->
         <div v-else-if="activeView === 'workload'">
           <h2>工作强度分析</h2>
-          <p>这里后面会放 JD 关键词、疑似 996 岗位占比等可视化。</p>
+          <p>
+            这里后面会放 JD 关键词、疑似 996 岗位占比、加班相关描述等分析图表，从文本角度审视用工文化。
+          </p>
         </div>
       </section>
     </main>
@@ -67,6 +81,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import CompanySalaryCompare from './components/CompanySalaryCompare.vue'
+import CityDistribution from './components/CityDistribution.vue'
 
 const activeView = ref('overview')
 
@@ -241,7 +257,7 @@ const currentSubtitle = computed(() => {
 
 @media (max-width: 900px) {
   .sidebar {
-    display: none; /* 手机端先简单隐藏，后面再做折叠菜单也可以 */
+    display: none;
   }
 }
 </style>

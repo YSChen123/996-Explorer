@@ -9,11 +9,36 @@
     </div>
 
     <nav class="nav">
-      <button class="nav-item">总体概览</button>
-      <button class="nav-item">公司对比</button>
-      <button class="nav-item">城市分析</button>
-      <button class="nav-item">工作强度分析</button>
+      <router-link
+        to="/"
+        class="nav-item"
+        active-class="active-nav-item"
+      >
+        总体概览
+      </router-link>
+
+      <router-link
+        to="/salary-map"
+        class="nav-item"
+        active-class="active-nav-item"
+      >
+        薪资地域热力图
+      </router-link>
+
+      <router-link
+        to="/work-hours"
+        class="nav-item"
+        active-class="active-nav-item"
+      >
+        工作强度分析
+      </router-link>
+
+      <!-- 这个先占位，以后可以给城市分析单独做个路由 -->
+      <button class="nav-item" disabled style="opacity: 0.6; cursor: default;">
+        城市分析（开发中）
+      </button>
     </nav>
+
 
     <div class="sidebar-footer">
       <div class="footer-title">关于项目</div>
@@ -114,4 +139,10 @@
 .footer-text {
   line-height: 1.4;
 }
+
+.active-nav-item {
+  background: rgba(148, 163, 184, 0.18);
+}
+
+
 </style>
