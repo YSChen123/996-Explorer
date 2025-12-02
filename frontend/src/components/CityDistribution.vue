@@ -1,5 +1,5 @@
-<template>
-  <div class="page">
+<template> 
+  <div class="page"> 
     <h1 class="page-title">城市与地域视角</h1>
     <p class="page-subtitle">
       分析不同城市中的大厂岗位分布与“性价比”。
@@ -30,8 +30,8 @@
     <section class="card">
       <h2 class="card-title">一线 / 新一线城市能级对比</h2>
       <p class="card-desc">
-        将所有「公司-城市」出现次数汇总到城市能级：一线（北京 / 上海 / 广州 / 深圳）、
-        新一线（杭州 / 南京 / 成都 / 武汉 / 天津 / 厦门），反映大厂对不同城市层级的布局倾向。
+        将所有「公司-城市」出现次数汇总到城市能级：一线（北京 / 上海 / 广州 / 深圳），
+        新一线（杭州 / 南京 / 成都 / 西安），反映大厂对不同城市层级的布局倾向。
       </p>
       <div class="chart-wrapper half">
         <v-chart class="chart" :option="tierPieOption" autoresize />
@@ -45,20 +45,21 @@ import { ref } from 'vue'
 import ChinaMap from './ChinaMap.vue'   // ✅ 同目录相对路径引入
 
 // 下面这些只给柱状图和饼图用，不再自己画地图了
+// 按 9 家大厂真实覆盖城市统计
 const cityNames = [
   '北京',
   '上海',
+  '成都',
   '广州',
   '深圳',
-  '杭州',
-  '成都',
-  '武汉',
+  '西安',
   '南京',
-  '天津',
-  '厦门'
+  '杭州'
 ]
 
-const cityCompanyCounts = [8, 8, 6, 5, 5, 5, 3, 2, 1, 1]
+// 对应每个城市被多少家公司覆盖
+// 北京:8, 上海:8, 成都:6, 广州:5, 深圳:5, 西安:4, 南京:4, 杭州:3
+const cityCompanyCounts = [8, 8, 6, 5, 5, 4, 4, 3]
 
 // 图 1：城市覆盖热度条形图
 const cityBarOption = ref({
@@ -106,7 +107,9 @@ const cityBarOption = ref({
   ]
 })
 
-// 图 2：城市能级饼图
+// 图 2：城市能级饼图（按「一线 vs 新一线」聚合）
+// 一线：北 / 上 / 广 / 深 → 8 + 8 + 5 + 5 = 26
+// 新一线：杭 / 宁 / 成 / 西 → 3 + 4 + 6 + 4 = 17
 const tierPieOption = ref({
   tooltip: {
     trigger: 'item',
@@ -134,11 +137,11 @@ const tierPieOption = ref({
       },
       data: [
         {
-          name: '一线城市（北上广深）',
-          value: 27
+          name: '一线城市（北 / 上 / 广 / 深）',
+          value: 26
         },
         {
-          name: '新一线城市（杭 / 成 / 武 / 宁 / 天 / 厦）',
+          name: '新一线城市（杭 / 宁 / 成 / 西）',
           value: 17
         }
       ]

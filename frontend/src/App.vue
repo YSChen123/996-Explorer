@@ -1,4 +1,4 @@
-<template>
+<template> 
   <div class="layout">
     <!-- 左侧导航栏 -->
     <aside class="sidebar">
@@ -48,13 +48,25 @@
           </p>
         </div>
 
-        <!-- 公司对比 -->
+        <!-- 公司对比（原来的薪资箱线图等） -->
         <div v-else-if="activeView === 'company'">
           <h2>公司对比</h2>
           <p style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">
             参考脉脉「大厂薪资地图」，对比不同公司的应届技术岗年薪与研发岗年薪区间分布，观察哪些公司更「豪」。
           </p>
           <CompanySalaryCompare />
+        </div>
+
+        <!-- 大厂收入对比（金币堆积动画） -->
+        <div v-else-if="activeView === 'coinIncome'">
+          <h2>大厂收入对比（金币堆积动画）</h2>
+          <p style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">
+            使用物理引擎模拟不同大厂的年度收入：收入越高，对应区域掉落并堆积的金币越多，最后形成三角形的小金山。
+          </p>
+          <!-- 给组件一个固定高度的容器，方便布局 -->
+          <div style="height: 600px; margin-top: 8px; border-radius: 12px; overflow: hidden; background: #fff;">
+            <CoinIncome />
+          </div>
         </div>
 
         <!-- 城市分析 -->
@@ -83,32 +95,37 @@
 import { ref, computed } from 'vue'
 import CompanySalaryCompare from './components/CompanySalaryCompare.vue'
 import CityDistribution from './components/CityDistribution.vue'
+import CoinIncome from './components/CoinIncome.vue'   // ✅ 新增引入
 
 const activeView = ref('overview')
 
+// ✅ 多加一个导航项：大厂收入对比
 const navItems = [
-  { key: 'overview', label: '总体概览' },
-  { key: 'company', label: '公司对比' },
-  { key: 'city', label: '城市分析' },
-  { key: 'workload', label: '工作强度分析' }
+  { key: 'overview',   label: '总体概览' },
+  { key: 'company',    label: '公司对比' },
+  { key: 'coinIncome', label: '大厂收入对比' },
+  { key: 'city',       label: '城市分析' },
+  { key: 'workload',   label: '工作强度分析' }
 ]
 
 const currentTitle = computed(() => {
   const map = {
-    overview: '总体概览',
-    company: '公司对比视角',
-    city: '城市与地域视角',
-    workload: '工作强度与用工文化'
+    overview:   '总体概览',
+    company:    '公司对比视角',
+    coinIncome: '大厂收入金币堆积图',
+    city:       '城市与地域视角',
+    workload:   '工作强度与用工文化'
   }
   return map[activeView.value] || '996-Explorer'
 })
 
 const currentSubtitle = computed(() => {
   const map = {
-    overview: '从整体维度观察中国互联网大厂的岗位与薪资生态。',
-    company: '比较不同公司的岗位结构、薪资区间与学历/经验要求。',
-    city: '分析不同城市中的大厂岗位分布与打工“性价比”。',
-    workload: '结合 JD 关键词与岗位标签，探讨加班与强度问题。'
+    overview:   '从整体维度观察中国互联网大厂的岗位与薪资生态。',
+    company:    '比较不同公司的岗位结构、薪资区间与学历/经验要求。',
+    coinIncome: '用动态金币堆积的方式，直观展示不同大厂的收入差异。',
+    city:       '分析不同城市中的大厂岗位分布与打工“性价比”。',
+    workload:   '结合 JD 关键词与岗位标签，探讨加班与强度问题。'
   }
   return map[activeView.value] || ''
 })
