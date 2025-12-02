@@ -167,43 +167,51 @@ const mapOption = computed(() => {
   const hqCity = company.hq
   const hqCoord = cityCoordMap[hqCity]
 
+  // 点数据：第三维 2 表示总部
   const scatterData = cities
     .filter(name => cityCoordMap[name])
     .map(name => ({
       name,
-      value: [...cityCoordMap[name], name === hqCity ? 2 : 1] // 用 2 标记总部
+      value: [...cityCoordMap[name], name === hqCity ? 2 : 1]
     }))
 
-  // 连线数据：从总部 -> 各分部
+  // 连线数据：从总部 → 各城市
   const linesData = cities
     .filter(name => name !== hqCity && cityCoordMap[name] && hqCoord)
-    .map(name => ({
-      name: name, // 为连线也设置名称，方便 tooltip
+    .map((name, idx) => ({
+      fromName: hqCity,
+      toName: name,
       coords: [hqCoord, cityCoordMap[name]],
-      // 在 data 级别设置弧度，让多条线不会完全重合，而是略微分开
+      // 每条线略微不同的弧度，避免完全重叠
       lineStyle: {
-        curveness: 0.25 + Math.random() * 0.1 // 随机化弧度 0.25 - 0.35
+        curveness: 0.15 + (idx % 3) * 0.06
       }
     }))
+
+  // 城市光晕的径向渐变
+  const haloGradient = new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
+    { offset: 0, color: echarts.color.modifyAlpha(company.color, 0.22) },
+    { offset: 0.8, color: echarts.color.modifyAlpha(company.color, 0.05) },
+    { offset: 1, color: 'rgba(255,255,255,0)' }
+  ])
 
   return {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',
       padding: 8,
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      backgroundColor: 'rgba(255, 255, 255, 0.96)',
       borderColor: '#d1d5db',
       borderWidth: 1,
-      textStyle: {
-        color: '#1f2937'
-      },
+      textStyle: { color: '#111827', fontSize: 12 },
       formatter: params => {
-        if (params.seriesType === 'effectScatter') {
-          return `${company.nameZh} · **${params.name}**`
+        if (params.seriesType === 'scatter' && params.seriesName.includes('城市')) {
+          const isHQ = params.value[2] === 2
+          return `${company.nameZh} · ${isHQ ? '总部 · ' : ''}${params.name}`
         }
-        if (params.seriesType === 'lines' && params.seriesName.includes('流光')) {
-          // 连线的 tooltip 提示从总部流向分部
-          return `${company.nameZh}: **${hqCity}** 连至 **${params.name}**`
+        if (params.seriesType === 'lines') {
+          const d = params.data || {}
+          return `${company.nameZh}：${d.fromName} → ${d.toName}`
         }
         return params.name
       }
@@ -211,122 +219,103 @@ const mapOption = computed(() => {
     geo: {
       map: 'china',
       roam: true,
-      zoom: 1.6, // 放大地图，聚焦核心区域
-      center: [108, 35], // 中心点略微北移东移，聚焦中东部
-      label: {
-        show: false
-      },
+      zoom: 1.35,          // 适度放大
+      center: [107, 34],   // 聚焦中东部
+      label: { show: false },
       itemStyle: {
-        areaColor: '#eef1f4',
-        borderColor: '#bbbec2',
-        borderWidth: 1.2,
-        shadowColor: 'rgba(0,0,0,0.15)', // 增加阴影深度
-        shadowBlur: 15,
-        shadowOffsetX: 3,
-        shadowOffsetY: 5
+        areaColor: '#f3f4f6',
+        borderColor: '#d1d5db',
+        borderWidth: 1,
+        shadowColor: 'rgba(15,23,42,0.12)',
+        shadowBlur: 10,
+        shadowOffsetX: 2,
+        shadowOffsetY: 4
       },
       emphasis: {
         itemStyle: {
-          areaColor: '#d3e2ee',
+          areaColor: '#e0f2fe',
           borderColor: '#94a3b8'
         }
       }
     },
     series: [
-      // 1. 粗连线底图（作为流线的背景光晕）
-      {
-        name: `${company.nameZh} · 连线底图`,
-        type: 'lines',
-        coordinateSystem: 'geo',
-        zlevel: 1, // 确保在底部
-        silent: true, // 不触发鼠标事件
-        lineStyle: {
-          color: company.color,
-          width: 4, // 较粗
-          opacity: 0.3, // 透明度较低
-          curveness: 0.3,
-        },
-        data: linesData.map(d => ({ 
-            ...d, 
-            lineStyle: { ...d.lineStyle, width: 4, opacity: 0.3, curveness: d.lineStyle.curveness } 
-        }))
-      },
-      // 2. 发光连线（具有流光效果的前景线）
+      // 1) 流动连线（细线 + 光标）
       {
         name: `${company.nameZh} · 流光连线`,
         type: 'lines',
         coordinateSystem: 'geo',
-        zlevel: 3, // 确保在粗底图之上
+        zlevel: 1,
         effect: {
           show: true,
           period: 4,
-          trailLength: 0.6,
-          symbol: 'pin',
-          symbolSize: 10,
-          color: company.color,
+          trailLength: 0.35,
+          symbol: 'arrow',
+          symbolSize: 6,
+          color: company.color
         },
         lineStyle: {
-          color: company.color,
-          width: 1, // 较细，突出流光
-          opacity: 0.9,
-          curveness: 0.3,
-          shadowColor: company.color,
-          shadowBlur: 10
+          color: echarts.color.modifyAlpha(company.color, 0.85),
+          width: 1.4,
+          opacity: 0.75,
+          shadowBlur: 10,
+          shadowColor: company.color
         },
-        data: linesData.map(d => ({ 
-            ...d, 
-            lineStyle: { ...d.lineStyle, width: 1, shadowBlur: 10, curveness: d.lineStyle.curveness } 
+        data: linesData.map(d => ({
+          ...d,
+          lineStyle: {
+            ...d.lineStyle,
+            width: 1.4,
+            opacity: 0.75
+          }
         }))
       },
-      // 3. 城市高亮点
+
+      // 2) 城市光晕（柔和圆形 halo）
+      {
+        name: `${company.nameZh} · 城市光晕`,
+        type: 'scatter',
+        coordinateSystem: 'geo',
+        zlevel: 2,
+        symbol: 'circle',
+        symbolSize: val => (val[2] === 2 ? 30 : 24),
+        itemStyle: {
+          color: haloGradient,
+          borderWidth: 0
+        },
+        silent: true,          // 不抢 tooltip
+        data: scatterData
+      },
+
+      // 3) 城市点 + 标签
       {
         name: `${company.nameZh} · 办公城市`,
-        type: 'effectScatter',
+        type: 'scatter',
         coordinateSystem: 'geo',
-        zlevel: 4, 
-        rippleEffect: {
-          brushType: 'fill',
-          scale: 7, 
-          period: 3
-        },
-        // 总部使用星形符号，更突出
-        symbol: (val) => (val[2] === 2 ? 'star' : 'circle'), 
-        symbolSize: (val) => (val[2] === 2 ? 22 : 14), // 总部点更大
+        zlevel: 3,
+        symbol: 'circle',
+        symbolSize: val => (val[2] === 2 ? 11 : 8),
         itemStyle: {
-          color: company.color,
-          shadowBlur: 30,
-          shadowColor: company.color,
-          opacity: 0.9
+          color: '#ffffff',
+          borderColor: company.color,
+          borderWidth: 2,
+          shadowBlur: 12,
+          shadowColor: company.color
         },
         label: {
           show: true,
-          formatter: (params) => {
-             // 总部标签加个【总】字
-             return params.value[2] === 2 ? `{a|总}{b|${params.name}}` : params.name;
-          },
           position: 'right',
-          color: '#111827',
-          fontSize: 12,
-          fontWeight: 700,
-          backgroundColor: 'rgba(255,255,255,0.98)',
-          padding: [4, 8],
+          formatter: params => {
+            const isHQ = params.value[2] === 2
+            return isHQ ? `总部 · ${params.name}` : params.name
+          },
+          backgroundColor: 'rgba(255,255,255,0.95)',
           borderRadius: 6,
-          borderColor: 'rgba(55,65,81,0.2)',
+          padding: [3, 6],
+          borderColor: 'rgba(148,163,184,0.6)',
           borderWidth: 1,
-          rich: {
-             a: {
-                backgroundColor: company.color,
-                color: '#ffffff',
-                fontSize: 10,
-                padding: [2, 4],
-                borderRadius: 4,
-                margin: [0, 4, 0, 0],
-                fontWeight: 'normal'
-             },
-             b: {
-                color: '#111827'
-             }
-          }
+          color: '#111827',
+          fontSize: 11,
+          fontWeight: 600
         },
         data: scatterData
       }
