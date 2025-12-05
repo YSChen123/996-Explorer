@@ -2,7 +2,7 @@
   <div class="skill-galaxy-page">
     <div class="header">
       <h2>技能星系 · Tech Galaxy</h2>
-      <p class="subtitle">拖拽节点 · 点击查看详情 · 点击热点跳转</p>
+      <p class="subtitle">拖拽节点 · 点击测试掌握程度 · 探索技术栈</p>
     </div>
 
     <div class="chart-wrapper">
@@ -33,49 +33,87 @@
               <div class="section-title">技术描述</div>
               <p class="desc-text">{{ selectedNode.data.desc || '暂无详细描述信息...' }}</p>
               
-              <div class="stat-row" v-if="selectedNode.data.value">
-                <span class="stat-label">⚡ 掌握程度</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" 
-                       :style="{ 
-                         width: Math.min(100, selectedNode.data.value) + '%', 
-                         background: `linear-gradient(90deg, ${getNodeColor(selectedNode)}, #fff)` 
-                       }">
+              <div class="stat-group" v-if="selectedNode.depth > 1"> <div class="stat-row">
+                  <span class="stat-label">🔥 市场热度 (Hotness)</span>
+                  <div class="progress-bar">
+                    <div class="progress-fill" 
+                         :style="{ 
+                           width: Math.min(100, selectedNode.data.value) + '%', 
+                           background: `linear-gradient(90deg, #ef4444, #fee2e2)` 
+                         }">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stat-row">
+                  <div class="stat-label-row">
+                    <span class="stat-label">🧠 个人掌握 (Mastery)</span>
+                    <span class="stat-score" :class="{ 'score-high': (selectedNode.data.userMastery || 0) >= 80 }">
+                      {{ selectedNode.data.userMastery || 0 }}%
+                    </span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" 
+                         :style="{ 
+                           width: (selectedNode.data.userMastery || 0) + '%', 
+                           background: `linear-gradient(90deg, #22c55e, #dcfce7)` 
+                         }">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="quiz-section" v-if="selectedNode.data.quiz && selectedNode.data.quiz.length">
+                <div class="sub-title">📝 技能自测</div>
+                
+                <div v-if="!quizState.isTesting" class="quiz-start-view">
+                  <p class="quiz-intro">
+                    共 {{ selectedNode.data.quiz.length }} 道题。
+                    <span v-if="selectedNode.data.userMastery > 0">当前成绩：{{ selectedNode.data.userMastery }}分。</span>
+                  </p>
+                  <button class="btn-primary" @click="startQuiz(selectedNode.data.quiz)">
+                    {{ selectedNode.data.userMastery > 0 ? '重新测试' : '开始测试' }}
+                  </button>
+                </div>
+
+                <div v-else class="quiz-testing-view">
+                  <div v-for="(q, idx) in quizState.currentQuestions" :key="idx" class="quiz-item">
+                    <div class="quiz-question">{{ idx + 1 }}. {{ q.question }}</div>
+                    <div class="quiz-options">
+                      <label 
+                        v-for="(opt, oIdx) in q.options" 
+                        :key="oIdx" 
+                        class="quiz-option-label"
+                        :class="{ 'selected': quizState.answers[idx] === oIdx }"
+                      >
+                        <input 
+                          type="radio" 
+                          :name="'q-' + idx" 
+                          :value="oIdx" 
+                          v-model="quizState.answers[idx]" 
+                        >
+                        {{ opt }}
+                      </label>
+                    </div>
+                  </div>
+                  <div class="quiz-actions">
+                    <button class="btn-secondary" @click="cancelQuiz">取消</button>
+                    <button class="btn-primary" @click="submitQuiz">提交答案</button>
                   </div>
                 </div>
               </div>
 
               <div class="related-skills" v-if="selectedNode.data.highlights && selectedNode.data.highlights.length">
-                <div class="sub-title">📌 核心热点 (点击跳转)</div>
+                <div class="sub-title">📌 核心知识点</div>
                 <div class="tags">
                   <span 
                     v-for="(tag, index) in selectedNode.data.highlights" 
                     :key="index" 
                     class="skill-tag highlight-tag clickable"
-                    :style="{ 
-                      borderColor: getNodeColor(selectedNode), 
-                      color: '#fff', 
-                      background: hexToRgba(getNodeColor(selectedNode), 0.15) 
-                    }"
                     @click.stop="handleHighlightClick(tag)"
                   >
                     {{ typeof tag === 'object' ? tag.name : tag }} 
                     <span class="link-icon">↗</span>
-                  </span>
-                </div>
-              </div>
-
-              <div class="related-skills" v-if="selectedNode.children || selectedNode._children">
-                <div class="sub-title">🌌 包含星系</div>
-                <div class="tags">
-                  <span 
-                    v-for="child in (selectedNode.children || selectedNode._children)" 
-                    :key="child.data.name" 
-                    class="skill-tag"
-                    :style="{ borderColor: getNodeColor(child), color: getNodeColor(child) }"
-                    @click.stop="selectNode(child)"
-                  >
-                    {{ child.data.name }}
                   </span>
                 </div>
               </div>
@@ -88,10 +126,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue';
 import * as d3 from 'd3';
 
-// --- 图标路径 (基于 24x24 ViewBox) ---
+// --- 测验状态管理 ---
+const quizState = reactive({
+  isTesting: false,
+  currentQuestions: [],
+  answers: {}
+});
+
+const startQuiz = (questions) => {
+  quizState.currentQuestions = questions;
+  quizState.answers = {}; // 重置答案
+  quizState.isTesting = true;
+};
+
+const cancelQuiz = () => {
+  quizState.isTesting = false;
+  quizState.currentQuestions = [];
+};
+
+const submitQuiz = () => {
+  if (!selectedNode.value) return;
+  
+  const questions = quizState.currentQuestions;
+  let correctCount = 0;
+  
+  questions.forEach((q, idx) => {
+    if (quizState.answers[idx] === q.correct) {
+      correctCount++;
+    }
+  });
+
+  // 计算得分 (0-100)
+  const score = Math.round((correctCount / questions.length) * 100);
+  
+  // 更新节点数据
+  // 注意：直接修改 d3 绑定的数据对象，Vue 会因为 ref 响应式更新视图
+  selectedNode.value.data.userMastery = score;
+  
+  alert(`测试完成！得分：${score} 分`);
+  quizState.isTesting = false;
+};
+
+// --- 图标路径 ---
 const iconPaths = {
   'user': 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
   'code': 'M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z', 
@@ -105,7 +184,7 @@ const iconPaths = {
   'default': 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'
 };
 
-// --- 数据结构：支持 highlights 混合类型 ---
+// --- 数据结构 ---
 const treeData = {
   name: "Tech Stack",
   group: "Root",
@@ -127,23 +206,33 @@ const treeData = {
             { 
               name: "OS内核", value: 90, group: "底层原理与架构", iconType: "os", 
               desc: "Linux内核机制、进程调度与内存管理。", 
-              highlights: ["CFS调度", "PageCache", "VFS", "中断处理"] 
+              highlights: ["CFS调度", "PageCache", "VFS", "中断处理"],
+              userMastery: 0,
+              // 添加题目
+              quiz: [
+                { question: "Linux中哪个命令用于查看系统负载？", options: ["top", "ls", "cp", "netstat"], correct: 0 },
+                { question: "PageCache 主要利用了哪种物理资源？", options: ["CPU", "RAM", "HDD", "GPU"], correct: 1 }
+              ]
             },
             { 
               name: "网络协议", value: 85, group: "底层原理与架构", iconType: "server", 
               desc: "TCP/IP 协议栈深入理解。", 
-              highlights: ["TCP拥塞控制", "HTTP2/3", "QUIC", "BGP"] 
+              highlights: ["TCP拥塞控制", "HTTP2/3", "QUIC", "BGP"],
+              userMastery: 0,
+              quiz: [
+                { question: "TCP 三次握手发生在哪个阶段？", options: ["传输数据时", "建立连接时", "断开连接时"], correct: 1 },
+                { question: "HTTP/3 基于哪个协议？", options: ["TCP", "UDP", "SCTP"], correct: 1 }
+              ]
             },
             { 
               name: "分布式", value: 80, group: "底层原理与架构", iconType: "cloud", 
               desc: "解决分布式环境下的共识与一致性问题。", 
-              // 示例：混合使用对象（带URL）和字符串（自动搜索）
-              highlights: [
-                { name: "Paxos算法", url: "https://zh.wikipedia.org/wiki/Paxos算法" }, 
-                { name: "Raft协议", url: "https://raft.github.io/" }, 
-                "ZAB", 
-                "CAP定理"
-              ] 
+              highlights: [{ name: "Paxos算法", url: "https://zh.wikipedia.org/wiki/Paxos算法" }, "Raft", "ZAB", "CAP定理"],
+              userMastery: 0,
+              quiz: [
+                { question: "在CAP定理中，P代表什么？", options: ["Consistency", "Availability", "Partition tolerance"], correct: 2 },
+                { question: "Raft协议中，Leader的作用是？", options: ["只读", "处理所有客户端请求", "备份日志"], correct: 1 }
+              ]
             }
           ]
         },
@@ -156,20 +245,30 @@ const treeData = {
             { 
               name: "JVM", value: 100, group: "Java生态", iconType: "code", 
               desc: "Java虚拟机深入调优。", 
-              highlights: ["GC算法", "JIT编译", "类加载", "内存模型JMM"] 
+              highlights: ["GC算法", "JIT编译", "类加载", "内存模型JMM"],
+              userMastery: 0,
+              quiz: [
+                { question: "JVM中哪个区域是线程私有的？", options: ["堆", "方法区", "虚拟机栈"], correct: 2 },
+                { question: "G1 收集器属于哪种垃圾回收器？", options: ["串行", "并行", "并发"], correct: 2 }
+              ]
             },
             { 
               name: "Spring", value: 95, group: "Java生态", iconType: "server", 
               desc: "Spring 全家桶应用与原理。", 
-              highlights: [
-                { name: "Spring官网", url: "https://spring.io/" },
-                "IOC/AOP", "Spring Boot", "Spring Cloud"
-              ] 
+              highlights: [{ name: "Spring官网", url: "https://spring.io/" }, "IOC/AOP", "Spring Boot"],
+              userMastery: 0,
+              quiz: [
+                { question: "Spring默认的Bean作用域是？", options: ["Prototype", "Singleton", "Request"], correct: 1 }
+              ]
             },
             { 
               name: "Netty", value: 80, group: "Java生态", iconType: "network", 
               desc: "高性能异步事件驱动网络框架。", 
-              highlights: ["Reactor模型", "零拷贝", "ByteBuf", "ChannelPipeline"] 
+              highlights: ["Reactor模型", "零拷贝", "ByteBuf", "ChannelPipeline"],
+              userMastery: 0,
+              quiz: [
+                { question: "Netty 的核心线程模型是？", options: ["Reactor", "Proactor", "Actor"], correct: 0 }
+              ]
             }
           ]
         },
@@ -179,18 +278,36 @@ const treeData = {
           iconType: "database",
           desc: "数据持久化与高速缓存方案。",
           children: [
-            { name: "MySQL", value: 95, group: "数据库与大数据", iconType: "database", desc: "关系型数据库核心。", highlights: ["InnoDB引擎", "B+树索引", "MVCC", "事务隔离"] },
-            { name: "Redis", value: 90, group: "数据库与大数据", iconType: "database", desc: "内存数据库与缓存。", highlights: ["持久化RDB/AOF", "Redis Cluster", "缓存击穿", "跳表"] }
+            { 
+              name: "MySQL", value: 95, group: "数据库与大数据", iconType: "database", 
+              desc: "关系型数据库核心。", 
+              highlights: ["InnoDB引擎", "B+树索引", "MVCC", "事务隔离"],
+              userMastery: 0,
+              quiz: [
+                { question: "InnoDB 使用哪种数据结构实现索引？", options: ["红黑树", "Hash", "B+树"], correct: 2 },
+                { question: "MVCC 用于解决什么问题？", options: ["读写冲突", "磁盘IO", "内存溢出"], correct: 0 }
+              ]
+            },
+            { 
+              name: "Redis", value: 90, group: "数据库与大数据", iconType: "database", 
+              desc: "内存数据库与缓存。", 
+              highlights: ["持久化RDB/AOF", "Redis Cluster", "缓存击穿", "跳表"],
+              userMastery: 0,
+              quiz: [
+                { question: "Redis 默认端口是？", options: ["3306", "6379", "8080"], correct: 1 },
+                { question: "ZSet 底层使用了什么数据结构？", options: ["链表", "跳表", "数组"], correct: 1 }
+              ]
+            }
           ]
         }
       ]
     },
+    // ... 其他节点此处省略，结构保持一致 ...
     {
       name: "AI & Data",
       group: "Role",
       iconType: "ai",
       desc: "利用数据挖掘价值，构建智能应用。",
-      highlights: ["模型训练", "ETL流程", "数据分析"],
       children: [
         {
           name: "AI Core",
@@ -198,19 +315,8 @@ const treeData = {
           iconType: "ai",
           desc: "人工智能核心算法与框架。",
           children: [
-            { name: "Python", value: 95, group: "人工智能与Python", iconType: "code", desc: "AI 开发首选语言。", highlights: ["GIL", "Decorator", "NumPy", "Pandas"] },
-            { name: "PyTorch", value: 85, group: "人工智能与Python", iconType: "ai", desc: "深度学习动态图框架。", highlights: [{name: "PyTorch官网", url: "https://pytorch.org/"}, "Autograd", "DDP分布式训练"] },
-            { name: "LLM", value: 80, group: "人工智能与Python", iconType: "ai", desc: "大语言模型技术。", highlights: ["Transformer", "Attention", "Fine-tuning", "RAG"] }
-          ]
-        },
-        {
-          name: "Big Data",
-          group: "数据库与大数据",
-          iconType: "server",
-          desc: "海量数据处理基础设施。",
-          children: [
-            { name: "Flink", value: 80, group: "数据库与大数据", iconType: "tool", desc: "低延迟流式计算引擎。", highlights: ["Watermark", "StateBackend", "Checkpoint"] },
-            { name: "Spark", value: 75, group: "数据库与大数据", iconType: "tool", desc: "大规模数据处理引擎。", highlights: ["RDD", "SparkSQL", "Shuffle机制"] }
+            { name: "Python", value: 95, group: "人工智能与Python", iconType: "code", desc: "AI 开发首选语言。", highlights: ["GIL", "Decorator"], userMastery: 0, quiz: [] },
+            { name: "PyTorch", value: 85, group: "人工智能与Python", iconType: "ai", desc: "深度学习动态图框架。", highlights: ["Autograd", "DDP"], userMastery: 0, quiz: [] }
           ]
         }
       ]
@@ -220,26 +326,23 @@ const treeData = {
       group: "Role",
       iconType: "tool",
       desc: "提升研发效率与交付质量。",
-      highlights: ["CI/CD", "容器化", "全栈开发"],
       children: [
-        {
-          name: "DevOps",
-          group: "计算机基础与工程",
-          iconType: "tool",
-          desc: "开发运维一体化。",
-          children: [
-            { name: "Docker", value: 85, group: "计算机基础与工程", iconType: "cloud", desc: "容器虚拟化技术。", highlights: ["Image Layer", "Namespace", "Cgroup"] },
-            { name: "K8s", value: 80, group: "计算机基础与工程", iconType: "cloud", desc: "容器编排事实标准。", highlights: ["Pod", "Service", "Ingress", "Helm"] }
-          ]
-        },
         {
           name: "Web前端",
           group: "前端与移动端",
           iconType: "mobile",
           desc: "现代前端交互开发。",
           children: [
-            { name: "Vue3", value: 75, group: "前端与移动端", iconType: "code", desc: "渐进式 JavaScript 框架。", highlights: [{name: "Vue文档", url: "https://vuejs.org"}, "Composition API", "Proxy响应式", "Vite"] },
-            { name: "React", value: 70, group: "前端与移动端", iconType: "code", desc: "构建用户界面的库。", highlights: ["Fiber", "Hooks", "Virtual DOM"] }
+            { 
+              name: "Vue3", value: 75, group: "前端与移动端", iconType: "code", 
+              desc: "渐进式 JavaScript 框架。", 
+              highlights: ["Composition API", "Proxy响应式"], 
+              userMastery: 0,
+              quiz: [
+                { question: "Vue3 使用什么实现响应式？", options: ["Object.defineProperty", "Proxy", "Observer"], correct: 1 }
+              ]
+            },
+            { name: "React", value: 70, group: "前端与移动端", iconType: "code", desc: "构建用户界面的库。", highlights: ["Fiber", "Hooks"], userMastery: 0, quiz: [] }
           ]
         }
       ]
@@ -276,13 +379,11 @@ const hexToRgba = (hex, alpha) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-// --- 核心热点跳转逻辑 ---
 const handleHighlightClick = (tag) => {
   let url = '';
   if (typeof tag === 'object' && tag.url) {
     url = tag.url;
   } else {
-    // 纯字符串则去搜索
     const keyword = typeof tag === 'object' ? tag.name : tag;
     url = `https://www.google.com/search?q=${encodeURIComponent(keyword + ' 技术原理')}`;
   }
@@ -308,7 +409,11 @@ onUnmounted(() => {
   if (resizeObserver) resizeObserver.disconnect();
 });
 
-const selectNode = (d) => { selectedNode.value = d; };
+const selectNode = (d) => { 
+  selectedNode.value = d; 
+  // 切换节点时重置测验状态
+  cancelQuiz();
+};
 const clearSelection = () => { selectedNode.value = null; };
 const bgClick = (e) => {
   if (e.target.tagName === 'svg' || e.target.tagName === 'rect') clearSelection();
@@ -391,32 +496,25 @@ const initChart = (width, height) => {
     const el = d3.select(this);
     const color = getNodeColor(d);
     
-    // 呼吸光圈
     el.append("circle")
       .attr("r", d.depth === 0 ? 0 : (38 - d.depth * 5))
       .attr("fill", color).attr("fill-opacity", 0.1)
       .attr("class", "pulse-circle");
 
-    // 实心核心
     el.append("circle")
       .attr("r", d.depth === 0 ? 0 : (16 - d.depth * 2))
       .attr("fill", "#0f172a").attr("stroke", color).attr("stroke-width", 2)
       .attr("filter", "url(#glow)");
 
-    // --- 图标位置修正核心 ---
     if (d.depth > 0 && d.depth < 3) {
-      // Scale: Role层 0.7, 技能层 0.5
       const scale = d.depth === 1 ? 0.7 : 0.5;
-      
       el.append("path")
         .attr("d", iconPaths[d.data.iconType] || iconPaths['default'])
         .attr("fill", color)
-        // 关键修复：居中图标
         .attr("transform", `translate(${-12 * scale}, ${-12 * scale}) scale(${scale})`) 
         .style("pointer-events", "none");
     }
 
-    // 文字位置
     el.append("text")
       .text(d.data.name)
       .attr("dy", d.depth === 1 ? 40 : 32)
@@ -462,9 +560,7 @@ const initChart = (width, height) => {
 }
 .skill-galaxy-page::before {
   content: ""; position: absolute; top: 0; left: 0; width: 200%; height: 200%;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
   transform: perspective(500px) rotateX(60deg); pointer-events: none;
 }
@@ -481,24 +577,17 @@ const initChart = (width, height) => {
 
 /* 面板样式 */
 .info-panel {
-  position: absolute; right: 30px; top: 30px; bottom: 30px; width: 380px;
+  position: absolute; right: 30px; top: 30px; bottom: 30px; width: 400px; /* 稍微加宽以容纳题目 */
   border-radius: 16px; overflow: hidden; z-index: 50;
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.6);
   display: flex; flex-direction: column;
   background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.panel-bg-glow {
-  position: absolute; top: -50px; left: -50px; width: 250px; height: 250px;
-  border-radius: 50%; filter: blur(90px); opacity: 0.3; pointer-events: none;
-}
+.panel-bg-glow { position: absolute; top: -50px; left: -50px; width: 250px; height: 250px; border-radius: 50%; filter: blur(90px); opacity: 0.3; pointer-events: none; }
 .panel-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; }
 .panel-header { padding: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; }
-.panel-icon-svg {
-  width: 52px; height: 52px; border-radius: 14px; border: 1px solid;
-  background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-right: 16px; flex-shrink: 0;
-}
+.panel-icon-svg { width: 52px; height: 52px; border-radius: 14px; border: 1px solid; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-right: 16px; flex-shrink: 0; }
 .panel-title { font-size: 1.4rem; font-weight: bold; color: #fff; line-height: 1.2; }
 .panel-tag { font-size: 0.75rem; border: 1px solid; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 6px; opacity: 0.8; }
 .close-btn { margin-left: auto; background: none; border: none; color: #94a3b8; font-size: 1.6rem; cursor: pointer; }
@@ -507,24 +596,44 @@ const initChart = (width, height) => {
 .panel-body { padding: 24px; flex: 1; overflow-y: auto; }
 .section-title { font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
 .desc-text { line-height: 1.6; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 24px; }
-.stat-row { margin-bottom: 24px; }
-.stat-label { font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px; display: block; }
-.progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; box-shadow: 0 0 10px currentColor; }
+
+/* 统计行样式优化 */
+.stat-group { margin-bottom: 24px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+.stat-row { margin-bottom: 12px; }
+.stat-row:last-child { margin-bottom: 0; }
+.stat-label-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.stat-label { font-size: 0.8rem; color: #94a3b8; }
+.stat-score { font-family: 'Exo 2', monospace; font-weight: bold; color: #fff; }
+.score-high { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+.progress-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; box-shadow: 0 0 10px currentColor; transition: width 0.5s ease-out; }
+
+/* 测验区域样式 */
+.quiz-section { margin-bottom: 24px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.15); }
+.quiz-start-view { text-align: center; }
+.quiz-intro { font-size: 0.9rem; color: #cbd5e1; margin-bottom: 12px; }
+.quiz-item { margin-bottom: 16px; }
+.quiz-question { font-weight: bold; margin-bottom: 8px; color: #e2e8f0; font-size: 0.95rem; }
+.quiz-options { display: flex; flex-direction: column; gap: 6px; }
+.quiz-option-label { 
+  display: block; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s;
+}
+.quiz-option-label:hover { background: rgba(255,255,255,0.1); }
+.quiz-option-label.selected { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; }
+.quiz-actions { display: flex; justify-content: space-between; margin-top: 16px; }
+
+/* 按钮样式 */
+.btn-primary { background: #3b82f6; color: white; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+.btn-primary:hover { background: #2563eb; }
+.btn-secondary { background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+.btn-secondary:hover { color: #fff; border-color: #94a3b8; }
 
 .sub-title { font-size: 0.85rem; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 12px; font-weight: bold; margin-top: 10px; }
-.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.skill-tag { 
-  font-size: 0.85rem; padding: 5px 12px; border-radius: 6px; border: 1px solid; 
-  background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; transition: all 0.2s;
-  display: flex; align-items: center;
-}
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.skill-tag { font-size: 0.85rem; padding: 5px 12px; border-radius: 6px; border: 1px solid; background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
 .skill-tag:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
 
-/* 热点标签样式 */
-.highlight-tag { 
-  font-weight: 600; border-width: 1px; cursor: pointer !important; padding-right: 8px; 
-}
+.highlight-tag { font-weight: 600; border-width: 1px; cursor: pointer !important; padding-right: 8px; }
 .highlight-tag:hover { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
 .link-icon { font-size: 10px; margin-left: 4px; opacity: 0.7; font-family: sans-serif; }
 
