@@ -3,7 +3,9 @@
     <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-logo">9</div>
+        <div class="brand-logo">
+          <img src="/src/assets/996-worker.png" alt="996-Explorer Logo" />
+        </div>
         <div class="brand-text">
           <div class="brand-title">996-Explorer</div>
           <div class="brand-subtitle">大厂就业可视化</div>
@@ -95,11 +97,11 @@
 import { ref, computed } from 'vue'
 import CompanySalaryCompare from './components/CompanySalaryCompare.vue'
 import CityDistribution from './components/CityDistribution.vue'
-import CoinIncome from './components/CoinIncome.vue'   // ✅ 新增引入
+import CoinIncome from './components/CoinIncome.vue'   
+import Logo996 from './assets/996-worker.png'
 
 const activeView = ref('overview')
 
-// ✅ 多加一个导航项：大厂收入对比
 const navItems = [
   { key: 'overview',   label: '总体概览' },
   { key: 'company',    label: '公司对比' },
@@ -143,52 +145,63 @@ const currentSubtitle = computed(() => {
 
 /* 左侧导航栏 */
 .sidebar {
-  width: 260px;
+  width: 280px;                 /* 原来 260，可以略宽一点 */
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
-  padding: 16px 16px 12px;
+  padding: 24px 20px 18px;      /* 上下左右都加一点 padding */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
+/* 顶部品牌区整体再高一点 */
 .brand {
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 24px;          /* 顶部区域再拉开一点 */
+  padding-bottom: 16px;
   border-bottom: 1px solid #e5e7eb;
 }
 
+/* 头像放大 */
 .brand-logo {
-  width: 32px;
-  height: 32px;
+  width: 52px;                  /* 原来 36 → 放大 */
+  height: 52px;
   border-radius: 999px;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 2px;
   background: linear-gradient(135deg, #4f46e5, #22c55e);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 16px;
+}
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+  display: block;
 }
 
 .brand-text {
-  margin-left: 10px;
+  margin-left: 12px;
 }
 
 .brand-title {
-  font-size: 15px;
+  font-size: 18px;              /* 标题更大一点 */
   font-weight: 600;
 }
 
 .brand-subtitle {
-  font-size: 12px;
+  font-size: 13px;
   color: #6b7280;
 }
 
+/* 导航项整体也稍微放大一点 */
 .nav {
-  margin: 8px 0;
+  margin: 16px 0;
   flex: 1;
   overflow-y: auto;
 }
@@ -196,12 +209,12 @@ const currentSubtitle = computed(() => {
 .nav-item {
   width: 100%;
   text-align: left;
-  padding: 8px 10px;
-  margin-bottom: 4px;
+  padding: 10px 12px;           /* 行高稍微加一点 */
+  margin-bottom: 6px;
   border-radius: 8px;
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;              /* 字体 +1 */
   color: #374151;
   cursor: pointer;
 }
