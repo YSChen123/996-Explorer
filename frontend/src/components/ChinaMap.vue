@@ -219,7 +219,7 @@ const mapOption = computed(() => {
     geo: {
       map: 'china',
       roam: true,
-      zoom: 1.35,          // 适度放大
+      zoom: 2,          // 适度放大
       center: [107, 34],   // 聚焦中东部
       label: { show: false },
       itemStyle: {

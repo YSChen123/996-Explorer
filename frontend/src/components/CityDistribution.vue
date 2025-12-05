@@ -44,7 +44,7 @@
 import { ref } from 'vue'
 import ChinaMap from './ChinaMap.vue'   // ✅ 同目录相对路径引入
 
-// 下面这些只给柱状图和饼图用，不再自己画地图了
+// 对应每个城市被多少家公司覆盖
 // 按 9 家大厂真实覆盖城市统计
 const cityNames = [
   '北京',
@@ -58,10 +58,14 @@ const cityNames = [
 ]
 
 // 对应每个城市被多少家公司覆盖
-// 北京:8, 上海:8, 成都:6, 广州:5, 深圳:5, 西安:4, 南京:4, 杭州:3
 const cityCompanyCounts = [8, 8, 6, 5, 5, 4, 4, 3]
 
-// 图 1：城市覆盖热度条形图
+// 先合并成对象数组，然后按数量降序排
+const sortedCityData = cityNames
+  .map((name, idx) => ({ name, value: cityCompanyCounts[idx] }))
+  .sort((a, b) => b.value - a.value)  
+
+// 图 1：城市覆盖热度条形图（降序）
 const cityBarOption = ref({
   grid: { left: 80, right: 30, top: 30, bottom: 30 },
   tooltip: {
@@ -80,14 +84,14 @@ const cityBarOption = ref({
   },
   yAxis: {
     type: 'category',
-    data: cityNames,
+    data: sortedCityData.map(d => d.name),   // 用排好序的城市名
     axisLine: { lineStyle: { color: '#9ca3af' } },
     axisLabel: { color: '#374151' }
   },
   series: [
     {
       type: 'bar',
-      data: cityCompanyCounts,
+      data: sortedCityData.map(d => d.value), // 用排好序的数量
       barWidth: 18,
       itemStyle: {
         borderRadius: [4, 4, 4, 4],
@@ -106,6 +110,7 @@ const cityBarOption = ref({
     }
   ]
 })
+
 
 // 图 2：城市能级饼图（按「一线 vs 新一线」聚合）
 // 一线：北 / 上 / 广 / 深 → 8 + 8 + 5 + 5 = 26

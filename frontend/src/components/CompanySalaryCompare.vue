@@ -1,20 +1,5 @@
 <template>
-  <div class="company-compare">
-    <!-- 图 1：应届技术岗年薪对比 -->
-    <section class="card">
-      <div class="card-header">
-        <h2>应届技术岗年薪对比（估算）</h2>
-        <p>
-          根据「大厂薪资地图 - 应届毕业」中技术岗月薪区间 × 月数，取区间中值估算年薪（单位：万元/年），
-          仅用于可视化示意。
-        </p>
-      </div>
-      <div class="chart-wrapper">
-          <v-chart class="chart" :option="gradOption" autoresize />
-      </div>
-    </section>
-
-    <!-- 图 2：研发岗年薪区间分布 -->
+      <!-- 图 1：研发岗年薪区间分布 -->
     <section class="card">
       <div class="card-header">
         <h2>研发岗年薪区间分布（估算）</h2>
@@ -27,7 +12,22 @@
          <v-chart class="chart" :option="bandOption" autoresize />
       </div>
     </section>
-  </div>
+
+  <div class="company-compare">
+    <!-- 图 2：应届技术岗年薪对比 -->
+    <section class="card">
+      <div class="card-header">
+        <h2>应届技术岗年薪对比（估算）</h2>
+        <p>
+          根据「大厂薪资地图 - 应届毕业」中技术岗月薪区间 × 月数，取区间中值估算年薪（单位：万元/年），
+          仅用于可视化示意。
+        </p>
+      </div>
+      <div class="chart-wrapper">
+          <v-chart class="chart" :option="gradOption" autoresize />
+      </div>
+    </section>
+      </div>
 </template>
 
 <script setup>
