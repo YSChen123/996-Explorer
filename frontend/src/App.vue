@@ -1,6 +1,5 @@
 <template> 
   <div class="layout">
-    <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-logo">9</div>
@@ -30,7 +29,6 @@
       </div>
     </aside>
 
-    <!-- 右侧内容区 -->
     <main class="content">
       <header class="content-header">
         <h1>{{ currentTitle }}</h1>
@@ -40,7 +38,6 @@
       </header>
 
       <section class="content-body">
-        <!-- 总体概览 -->
         <div v-if="activeView === 'overview'">
           <h2>总体概览</h2>
           <p>
@@ -48,42 +45,52 @@
           </p>
         </div>
 
-        <!-- 公司对比（原来的薪资箱线图等） -->
         <div v-else-if="activeView === 'company'">
           <h2>公司对比</h2>
           <p style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">
-            参考脉脉「大厂薪资地图」，对比不同公司的应届技术岗年薪与研发岗年薪区间分布，观察哪些公司更「豪」。
+            参考脉脉「大厂薪资地图」，对比不同公司的应届技术岗年薪与研发岗年薪区间分布。
           </p>
           <CompanySalaryCompare />
         </div>
 
-        <!-- 大厂收入对比（金币堆积动画） -->
         <div v-else-if="activeView === 'coinIncome'">
-          <h2>大厂收入对比（金币堆积动画）</h2>
+          <h2>大厂收入对比</h2>
           <p style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">
-            使用物理引擎模拟不同大厂的年度收入：收入越高，对应区域掉落并堆积的金币越多，最后形成三角形的小金山。
+            使用物理引擎模拟不同大厂的年度收入：收入越高，对应区域掉落并堆积的金币越多。
           </p>
-          <!-- 给组件一个固定高度的容器，方便布局 -->
           <div style="height: 600px; margin-top: 8px; border-radius: 12px; overflow: hidden; background: #fff;">
             <CoinIncome />
           </div>
         </div>
 
-        <!-- 城市分析 -->
         <div v-else-if="activeView === 'city'">
           <h2>城市分析</h2>
-          <p style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">
-            基于「第一梯队 / 第二梯队」图中列出的工作地点，统计 9 家大厂在各城市的覆盖情况，
-            并按照一线 / 新一线城市做能级对比。
-          </p>
           <CityDistribution />
         </div>
+
+        <div v-else-if="activeView === 'salaryMap'">
+          <h2>薪资地域热力图</h2>
+          <SalaryMap />
+        </div>
+
+        <div v-else-if="activeView === 'salaryCost'">
+          <h2>薪资性价比地图</h2>
+          <p style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">
+            对比平均薪资与当地生活成本，圆圈越大代表“每月剩下的钱”越多。
+          </p>
+          <SalaryCostMap />
+        </div>
         
-        <!-- 工作强度分析 -->
+        <div v-else-if="activeView === 'skillTree'" style="height: 100%;">
+          <div style="width: 100%; height: 750px; background: #000; border-radius: 12px; overflow: hidden; position: relative;">
+            <SkillTree />
+          </div>
+        </div>
+
         <div v-else-if="activeView === 'workload'">
           <h2>工作强度分析</h2>
           <p>
-            这里后面会放 JD 关键词、疑似 996 岗位占比、加班相关描述等分析图表，从文本角度审视用工文化。
+            这里后面会放 JD 关键词、疑似 996 岗位占比、加班相关描述等分析图表。
           </p>
         </div>
       </section>
@@ -93,18 +100,24 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+// 引入组件
 import CompanySalaryCompare from './components/CompanySalaryCompare.vue'
 import CityDistribution from './components/CityDistribution.vue'
-import CoinIncome from './components/CoinIncome.vue'   // ✅ 新增引入
+import CoinIncome from './components/CoinIncome.vue'
+import SalaryMap from './views/SalaryMap.vue' 
+import SalaryCostMap from './components/SalaryCostMap.vue' 
+import SkillTree from './views/SkillTree.vue' // 确保引入了 SkillTree
 
 const activeView = ref('overview')
 
-// ✅ 多加一个导航项：大厂收入对比
 const navItems = [
   { key: 'overview',   label: '总体概览' },
   { key: 'company',    label: '公司对比' },
   { key: 'coinIncome', label: '大厂收入对比' },
   { key: 'city',       label: '城市分析' },
+  { key: 'salaryMap',  label: '薪资地域热力图' },
+  { key: 'salaryCost', label: '💰 薪资性价比' },
+  { key: 'skillTree',  label: '🌌 技能星云图谱' }, // 菜单项
   { key: 'workload',   label: '工作强度分析' }
 ]
 
@@ -114,6 +127,9 @@ const currentTitle = computed(() => {
     company:    '公司对比视角',
     coinIncome: '大厂收入金币堆积图',
     city:       '城市与地域视角',
+    salaryMap:  '薪资地域热力图',
+    salaryCost: '薪资性价比地图',
+    skillTree:  '技能星云图谱', 
     workload:   '工作强度与用工文化'
   }
   return map[activeView.value] || '996-Explorer'
@@ -125,6 +141,9 @@ const currentSubtitle = computed(() => {
     company:    '比较不同公司的岗位结构、薪资区间与学历/经验要求。',
     coinIncome: '用动态金币堆积的方式，直观展示不同大厂的收入差异。',
     city:       '分析不同城市中的大厂岗位分布与打工“性价比”。',
+    salaryMap:  '查看不同省份/城市的岗位分布热度。',
+    salaryCost: '计算公式：平均月薪 - 城市生活成本 = 每月盈余。',
+    skillTree:  '基于招聘JD数据聚类分析，展示计算机专业技能的关联与生态。', 
     workload:   '结合 JD 关键词与岗位标签，探讨加班与强度问题。'
   }
   return map[activeView.value] || ''
@@ -132,7 +151,7 @@ const currentSubtitle = computed(() => {
 </script>
 
 <style scoped>
-/* 整体布局：左侧窄栏 + 右侧主内容，白色简约背景 */
+/* 样式保持不变 */
 .layout {
   min-height: 100vh;
   display: flex;
@@ -141,7 +160,6 @@ const currentSubtitle = computed(() => {
   color: #111827;
 }
 
-/* 左侧导航栏 */
 .sidebar {
   width: 260px;
   background: #ffffff;
@@ -231,7 +249,6 @@ const currentSubtitle = computed(() => {
   line-height: 1.5;
 }
 
-/* 右侧内容区 */
 .content {
   flex: 1;
   display: flex;

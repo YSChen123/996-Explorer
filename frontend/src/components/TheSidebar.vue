@@ -37,6 +37,15 @@
       <button class="nav-item" disabled style="opacity: 0.6; cursor: default;">
         城市分析（开发中）
       </button>
+
+      <router-link
+        to="/salary-cost"
+        class="nav-item"
+        active-class="active-nav-item"
+      >
+        薪资性价比
+      </router-link>
+
     </nav>
 
 
