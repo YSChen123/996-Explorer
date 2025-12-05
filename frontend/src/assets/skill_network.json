@@ -1,0 +1,285 @@
+{
+    "nodes": [
+        {
+            "id": "软件工程",
+            "name": "软件工程",
+            "value": 128,
+            "group": "计算机基础与工程",
+            "centrality": 0.55
+        },
+        {
+            "id": "大数据技术",
+            "name": "大数据技术",
+            "value": 110,
+            "group": "数据库与大数据",
+            "centrality": 0.45
+        },
+        {
+            "id": "数据库原理",
+            "name": "数据库原理",
+            "value": 85,
+            "group": "数据库与大数据",
+            "centrality": 0.65
+        },
+        {
+            "id": "Python",
+            "name": "Python",
+            "value": 78,
+            "group": "人工智能与Python",
+            "centrality": 0.70
+        },
+        {
+            "id": "数据结构与算法",
+            "name": "数据结构与算法",
+            "value": 72,
+            "group": "计算机基础与工程",
+            "centrality": 0.60
+        },
+        {
+            "id": "MySQL",
+            "name": "MySQL",
+            "value": 68,
+            "group": "数据库与大数据",
+            "centrality": 0.50
+        },
+        {
+            "id": "C/C++",
+            "name": "C/C++",
+            "value": 55,
+            "group": "C/C++与系统",
+            "centrality": 0.48
+        },
+        {
+            "id": "Java",
+            "name": "Java",
+            "value": 45,
+            "group": "Java生态",
+            "centrality": 0.42
+        },
+        {
+            "id": "自然语言处理",
+            "name": "自然语言处理(NLP)",
+            "value": 42,
+            "group": "人工智能与Python",
+            "centrality": 0.35
+        },
+        {
+            "id": "计算机网络",
+            "name": "计算机网络",
+            "value": 38,
+            "group": "计算机基础与工程",
+            "centrality": 0.40
+        },
+        {
+            "id": "Redis",
+            "name": "Redis",
+            "value": 35,
+            "group": "数据库与大数据",
+            "centrality": 0.38
+        },
+        {
+            "id": "Spring框架",
+            "name": "Spring框架",
+            "value": 32,
+            "group": "Java生态",
+            "centrality": 0.30
+        },
+        {
+            "id": "Linux操作系统",
+            "name": "Linux操作系统",
+            "value": 30,
+            "group": "C/C++与系统",
+            "centrality": 0.45
+        },
+        {
+            "id": "深度学习",
+            "name": "深度学习",
+            "value": 28,
+            "group": "人工智能与Python",
+            "centrality": 0.32
+        },
+        {
+            "id": "JavaScript",
+            "name": "JavaScript",
+            "value": 25,
+            "group": "前端与移动端",
+            "centrality": 0.25
+        },
+        {
+            "id": "多线程/并发",
+            "name": "多线程/并发",
+            "value": 24,
+            "group": "C/C++与系统",
+            "centrality": 0.35
+        },
+        {
+            "id": "设计模式",
+            "name": "设计模式",
+            "value": 22,
+            "group": "计算机基础与工程",
+            "centrality": 0.28
+        },
+        {
+            "id": "机器学习",
+            "name": "机器学习",
+            "value": 20,
+            "group": "人工智能与Python",
+            "centrality": 0.30
+        },
+        {
+            "id": "Vue框架",
+            "name": "Vue.js",
+            "value": 18,
+            "group": "前端与移动端",
+            "centrality": 0.20
+        },
+        {
+            "id": "容器技术",
+            "name": "Docker/K8s",
+            "value": 15,
+            "group": "计算机基础与工程",
+            "centrality": 0.22
+        },
+        {
+            "id": "微服务",
+            "name": "微服务架构",
+            "value": 14,
+            "group": "Java生态",
+            "centrality": 0.25
+        },
+        {
+            "id": "前端开发",
+            "name": "Web前端开发",
+            "value": 12,
+            "group": "前端与移动端",
+            "centrality": 0.20
+        }
+    ],
+    "links": [
+        {
+            "source": "Java",
+            "target": "Spring框架",
+            "value": 15
+        },
+        {
+            "source": "Java",
+            "target": "MySQL",
+            "value": 12
+        },
+        {
+            "source": "Java",
+            "target": "Redis",
+            "value": 10
+        },
+        {
+            "source": "Java",
+            "target": "微服务",
+            "value": 8
+        },
+        {
+            "source": "Spring框架",
+            "target": "MySQL",
+            "value": 8
+        },
+        {
+            "source": "Python",
+            "target": "大数据技术",
+            "value": 18
+        },
+        {
+            "source": "Python",
+            "target": "深度学习",
+            "value": 15
+        },
+        {
+            "source": "Python",
+            "target": "机器学习",
+            "value": 12
+        },
+        {
+            "source": "Python",
+            "target": "自然语言处理",
+            "value": 14
+        },
+        {
+            "source": "大数据技术",
+            "target": "数据库原理",
+            "value": 25
+        },
+        {
+            "source": "数据库原理",
+            "target": "MySQL",
+            "value": 20
+        },
+        {
+            "source": "数据库原理",
+            "target": "Redis",
+            "value": 15
+        },
+        {
+            "source": "C/C++",
+            "target": "Linux操作系统",
+            "value": 18
+        },
+        {
+            "source": "C/C++",
+            "target": "多线程/并发",
+            "value": 15
+        },
+        {
+            "source": "C/C++",
+            "target": "数据结构与算法",
+            "value": 20
+        },
+        {
+            "source": "数据结构与算法",
+            "target": "Java",
+            "value": 10
+        },
+        {
+            "source": "数据结构与算法",
+            "target": "Python",
+            "value": 12
+        },
+        {
+            "source": "数据结构与算法",
+            "target": "软件工程",
+            "value": 15
+        },
+        {
+            "source": "软件工程",
+            "target": "设计模式",
+            "value": 10
+        },
+        {
+            "source": "软件工程",
+            "target": "数据库原理",
+            "value": 12
+        },
+        {
+            "source": "计算机网络",
+            "target": "Linux操作系统",
+            "value": 8
+        },
+        {
+            "source": "前端开发",
+            "target": "JavaScript",
+            "value": 10
+        },
+        {
+            "source": "JavaScript",
+            "target": "Vue框架",
+            "value": 8
+        },
+        {
+            "source": "容器技术",
+            "target": "微服务",
+            "value": 6
+        },
+        {
+            "source": "容器技术",
+            "target": "Linux操作系统",
+            "value": 8
+        }
+    ]
+}

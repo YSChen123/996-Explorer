@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-// 引入你的可视化页面组件
 import HomeView from '../views/HomeView.vue'
 import WorkHours from '../views/WorkHours.vue'
 import SalaryMap from '../views/SalaryMap.vue'
+import SalaryCost from '../views/SalaryCost.vue'
+// 1. 引入新页面
+import SkillTree from '../views/SkillTree.vue'
 
 const routes = [
   {
@@ -23,6 +25,19 @@ const routes = [
     name: 'SalaryMap',
     component: SalaryMap,
     meta: { title: '薪资地域热力图' }
+  },
+  {
+    path: '/salary-cost',
+    name: 'SalaryCost',
+    component: SalaryCost,
+    meta: { title: '薪资性价比' }
+  },
+  // 2. 添加新路由配置
+  {
+    path: '/skill-tree',
+    name: 'SkillTree',
+    component: SkillTree,
+    meta: { title: '岗位技能树' }
   }
 ]
 
