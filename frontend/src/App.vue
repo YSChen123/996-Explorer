@@ -134,9 +134,7 @@
         </div>
 
         <!-- 2.2 学历要求对比 -->
-        <div
-          v-else-if="activeMain === 'jobFactors' && activeSub === 'eduRequirements'"
-        >
+        <div v-else-if="activeMain === 'jobFactors' && activeSub === 'eduRequirements'">
           <h2>学历要求对比（本科 / 硕士 / 博士 / 大专）</h2>
           <p>
             分析不同公司在学历要求上的“卷度”：本科、硕士、博士、大专各占多大比例，
@@ -147,15 +145,11 @@
             · 堆叠条形图：公司在 x 轴，学历占比在 y 轴
             · 雷达图：每家公司一个雷达，维度是不同学历比例。
           </p>
-          <div class="placeholder-card">
-            这里预留学历要求可视化组件（EducationRequirementChart）。
-          </div>
+          <EducationRequirementChart />
         </div>
 
         <!-- 2.3 岗位类型结构 -->
-        <div
-          v-else-if="activeMain === 'jobFactors' && activeSub === 'roleStructure'"
-        >
+        <div v-else-if="activeMain === 'jobFactors' && activeSub === 'roleStructure'">
           <h2>岗位类型结构（研发 / 产品 / 运营 / 市场 / 职能）</h2>
           <p>
             不同大厂的岗位结构差异很大：有的研发占比极高，有的运营与市场岗位更多。
@@ -166,15 +160,11 @@
             · 环形图/玫瑰图：单公司内部岗位结构
             · 分组条形图：对比 9 家大厂的“研发岗位占比”等。
           </p>
-          <div class="placeholder-card">
-            这里预留岗位结构可视化组件（RoleStructureChart）。
-          </div>
+          <RoleStructureChart />
         </div>
 
         <!-- 2.4 工作经验要求分布 -->
-        <div
-          v-else-if="activeMain === 'jobFactors' && activeSub === 'expRequirements'"
-        >
+        <div v-else-if="activeMain === 'jobFactors' && activeSub === 'expRequirements'">
           <h2>工作经验要求分布（应届 / 1-3 年 / 3-5 年 / 5 年以上）</h2>
           <p>
             统计每家公司的不同经验段需求比例，看看应届生岗位在整体中占多大权重，
@@ -185,9 +175,7 @@
             · 堆叠条形图：公司 vs 经验段比例
             · 雷达图：公司对不同经验层级的需求强度。
           </p>
-          <div class="placeholder-card">
-            这里预留经验要求可视化组件（ExperienceRequirementChart）。
-          </div>
+          <ExperienceRequirementChart />
         </div>
 
         <!-- 2.5 校招 vs 社招 岗位比例 -->
@@ -210,9 +198,7 @@
         </div>
 
         <!-- 2.6 技术栈 / 技能关键词 -->
-        <div
-          v-else-if="activeMain === 'jobFactors' && activeSub === 'techStack'"
-        >
+        <div v-else-if="activeMain === 'jobFactors' && activeSub === 'techStack'">
           <h2>技术栈 / 技能关键词可视化</h2>
           <p>
             针对技术岗 JD 做分词，统计最常出现的编程语言与技术关键词，
@@ -223,9 +209,7 @@
             · 技术栈词云：每家公司一张
             · 雷达图或条形图：对比各家公司对关键技能的需求强度。
           </p>
-          <div class="placeholder-card">
-            这里预留技能词云与技能强度图组件（TechStackWordCloud / SkillDemandChart）。
-          </div>
+          <TechStackView />
         </div>
 
         <!-- 2.7 薪资 vs 学历/经验 -->
@@ -335,6 +319,10 @@
 import { ref, computed } from 'vue'
 import CompanySalaryCompare from './components/CompanySalaryCompare.vue'
 import CityDistribution from './components/CityDistribution.vue'
+import EducationRequirementChart from './components/EducationRequirementChart.vue'
+import ExperienceRequirementChart from './components/ExperienceRequirementChart.vue'
+import RoleStructureChart from './components/RoleStructureChart.vue'
+import TechStackView from './components/TechStackView.vue'
 import CoinIncome from './components/CoinIncome.vue'
 import CompanyBasicInfo from './components/CompanyBasicInfo.vue'
 
