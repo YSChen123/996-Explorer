@@ -192,9 +192,7 @@
             · 堆叠条形图：公司 vs 校招 / 社招 / 实习占比
             · 时间轴折线：校招岗位数量随时间的变化。
           </p>
-          <div class="placeholder-card">
-            这里预留校招/社招比例可视化组件（CampusSocialChart）。
-          </div>
+          <CampusSocialChart />
         </div>
 
         <!-- 2.6 技术栈 / 技能关键词 -->
@@ -322,6 +320,7 @@ import CoinIncome from './components/CoinIncome.vue'
 import CompanyBasicInfo from './components/CompanyBasicInfo.vue'
 import OvertimeIntensityChart from './components/OvertimeIntensityChart.vue'
 import BenefitWordCloud from './components/BenefitWordCloud.vue'
+import CampusSocialChart from './components/CampusSocialChart/CampusSocialChart.vue'
 
 const activeMain = ref('companyIntro')     // 当前选中的大块
 const activeSub = ref('companyBasic')      // 默认显示：大厂基本信息一览
