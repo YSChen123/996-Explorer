@@ -295,6 +295,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
+import 'echarts-wordcloud'
 
 // 响应式数据 - 替换为指定的9家公司
 const companies = ref([
@@ -578,17 +579,14 @@ const renderWordClouds = () => {
         .slice(0, wordCloudMaxWords.value)
         .map(tech => ({
           name: tech.name,
-          value: tech.weight * 10,
-          textStyle: {
-            color: company.color
-          }
+          value: tech.weight * 10
         }))
       
       const option = {
         tooltip: {
           show: true,
           formatter: (params) => {
-            return `${params.name}<br/>权重: ${params.value / 10}`
+            return `${params.name}<br/>权重: ${params.data.value / 10}`
           }
         },
         series: [{
@@ -609,7 +607,7 @@ const renderWordClouds = () => {
           textStyle: {
             fontFamily: 'sans-serif',
             fontWeight: 'bold',
-            color: function () {
+            color: () => {
               return company.color
             }
           },
