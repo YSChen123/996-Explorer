@@ -33,8 +33,9 @@
               <div class="section-title">技术描述</div>
               <p class="desc-text">{{ selectedNode.data.desc || '暂无详细描述信息...' }}</p>
               
-              <div class="stat-group" v-if="selectedNode.depth > 1"> <div class="stat-row">
-                  <span class="stat-label">🔥 市场热度 (Hotness)</span>
+              <div class="stat-group" v-if="selectedNode.depth > 1">
+                <div class="stat-row">
+                  <span class="stat-label">🔥 市场热度</span>
                   <div class="progress-bar">
                     <div class="progress-fill" 
                          :style="{ 
@@ -47,7 +48,7 @@
 
                 <div class="stat-row">
                   <div class="stat-label-row">
-                    <span class="stat-label">🧠 个人掌握 (Mastery)</span>
+                    <span class="stat-label">🧠 个人掌握</span>
                     <span class="stat-score" :class="{ 'score-high': (selectedNode.data.userMastery || 0) >= 80 }">
                       {{ selectedNode.data.userMastery || 0 }}%
                     </span>
@@ -138,7 +139,7 @@ const quizState = reactive({
 
 const startQuiz = (questions) => {
   quizState.currentQuestions = questions;
-  quizState.answers = {}; // 重置答案
+  quizState.answers = {};
   quizState.isTesting = true;
 };
 
@@ -159,11 +160,7 @@ const submitQuiz = () => {
     }
   });
 
-  // 计算得分 (0-100)
   const score = Math.round((correctCount / questions.length) * 100);
-  
-  // 更新节点数据
-  // 注意：直接修改 d3 绑定的数据对象，Vue 会因为 ref 响应式更新视图
   selectedNode.value.data.userMastery = score;
   
   alert(`测试完成！得分：${score} 分`);
@@ -208,7 +205,6 @@ const treeData = {
               desc: "Linux内核机制、进程调度与内存管理。", 
               highlights: ["CFS调度", "PageCache", "VFS", "中断处理"],
               userMastery: 0,
-              // 添加题目
               quiz: [
                 { question: "Linux中哪个命令用于查看系统负载？", options: ["top", "ls", "cp", "netstat"], correct: 0 },
                 { question: "PageCache 主要利用了哪种物理资源？", options: ["CPU", "RAM", "HDD", "GPU"], correct: 1 }
@@ -302,7 +298,6 @@ const treeData = {
         }
       ]
     },
-    // ... 其他节点此处省略，结构保持一致 ...
     {
       name: "AI & Data",
       group: "Role",
@@ -356,28 +351,20 @@ const selectedNode = ref(null);
 let simulation = null;
 let resizeObserver = null;
 
-// --- 配色方案 ---
+// --- 配色方案 (针对白底微调) ---
 const groupColors = {
-  "Root": "#ffffff",
-  "Role": "#38bdf8", 
-  "底层原理与架构": "#f472b6", 
-  "C/C++与系统": "#fb923c", 
-  "Java生态": "#818cf8", 
-  "数据库与大数据": "#34d399", 
-  "人工智能与Python": "#a78bfa", 
-  "前端与移动端": "#fb7185", 
-  "计算机基础与工程": "#fbbf24"
+  "Root": "#334155", // 改为深灰色
+  "Role": "#3b82f6", 
+  "底层原理与架构": "#db2777", 
+  "C/C++与系统": "#ea580c", 
+  "Java生态": "#4f46e5", 
+  "数据库与大数据": "#059669", 
+  "人工智能与Python": "#7c3aed", 
+  "前端与移动端": "#be185d", 
+  "计算机基础与工程": "#d97706"
 };
 
 const getNodeColor = (d) => groupColors[d.data?.group] || groupColors[d.group] || "#94a3b8";
-
-const hexToRgba = (hex, alpha) => {
-  if (!hex) return `rgba(255,255,255,${alpha})`;
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
 
 const handleHighlightClick = (tag) => {
   let url = '';
@@ -411,7 +398,6 @@ onUnmounted(() => {
 
 const selectNode = (d) => { 
   selectedNode.value = d; 
-  // 切换节点时重置测验状态
   cancelQuiz();
 };
 const clearSelection = () => { selectedNode.value = null; };
@@ -427,7 +413,7 @@ const initChart = (width, height) => {
   svg.attr('width', width).attr('height', height)
      .attr('viewBox', [-width/2, -height/2, width, height]);
 
-  // 背景
+  // 背景透明
   svg.append("rect")
      .attr("width", width * 4).attr("height", height * 4)
      .attr("x", -width * 2).attr("y", -height * 2)
@@ -473,8 +459,8 @@ const initChart = (width, height) => {
     .join("path")
     .attr("fill", "none")
     .attr("stroke-width", 1.5)
-    .attr("stroke-opacity", 0.6)
-    .attr("stroke", "#5f687a")
+    .attr("stroke-opacity", 0.4)
+    .attr("stroke", "#94a3b8") // [修改] 连线改深色
     .style("pointer-events", "none");
 
   const node = container.append("g")
@@ -496,14 +482,17 @@ const initChart = (width, height) => {
     const el = d3.select(this);
     const color = getNodeColor(d);
     
+    // 脉冲圈
     el.append("circle")
       .attr("r", d.depth === 0 ? 0 : (38 - d.depth * 5))
       .attr("fill", color).attr("fill-opacity", 0.1)
       .attr("class", "pulse-circle");
 
+    // 实体圈
     el.append("circle")
       .attr("r", d.depth === 0 ? 0 : (16 - d.depth * 2))
-      .attr("fill", "#0f172a").attr("stroke", color).attr("stroke-width", 2)
+      .attr("fill", "#ffffff") // [修改] 节点内部改白底
+      .attr("stroke", color).attr("stroke-width", 2)
       .attr("filter", "url(#glow)");
 
     if (d.depth > 0 && d.depth < 3) {
@@ -519,10 +508,10 @@ const initChart = (width, height) => {
       .text(d.data.name)
       .attr("dy", d.depth === 1 ? 40 : 32)
       .attr("text-anchor", "middle")
-      .attr("fill", "#e2e8f0")
+      .attr("fill", "#334155") // [修改] 文字颜色改深
       .style("font-size", d.depth === 1 ? "14px" : "12px")
       .style("font-weight", d.depth === 1 ? "bold" : "normal")
-      .style("text-shadow", "0 2px 4px rgba(0,0,0,0.8)")
+      // .style("text-shadow", "0 2px 4px rgba(0,0,0,0.8)") // [修改] 去掉阴影，白底不需要
       .style("pointer-events", "none");
   });
 
@@ -554,87 +543,96 @@ const initChart = (width, height) => {
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap');
 
 .skill-galaxy-page {
-  background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-  width: 100%; height: 100vh; position: relative; overflow: hidden;
-  font-family: 'Exo 2', sans-serif; color: #e2e8f0;
+  /* [修改] 背景改为白色 */
+  background: #ffffff;
+  width: 100%; 
+  /* [修改] 高度设为 100% 以适应父容器 */
+  height: 100%;
+  position: relative; overflow: hidden;
+  font-family: 'Exo 2', sans-serif; 
+  /* [修改] 文字基色 */
+  color: #334155;
 }
+
+/* [修改] 背景网格改为浅色 */
 .skill-galaxy-page::before {
   content: ""; position: absolute; top: 0; left: 0; width: 200%; height: 200%;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
   background-size: 50px 50px;
   transform: perspective(500px) rotateX(60deg); pointer-events: none;
 }
+
 .header { position: absolute; top: 30px; left: 40px; pointer-events: none; z-index: 10; }
 .header h2 {
   font-size: 2.5rem; margin: 0; letter-spacing: 2px;
-  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(to right, #2563eb 0%, #06b6d4 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.3));
+  filter: drop-shadow(0 0 5px rgba(37, 99, 235, 0.1));
 }
 .subtitle { color: #64748b; font-size: 0.9rem; margin-top: 5px; opacity: 0.8; }
 .chart-wrapper { width: 100%; height: 100%; position: relative; }
 .chart-container { width: 100%; height: 100%; }
 
-/* 面板样式 */
+/* [修改] 面板改为白底玻璃态 */
 .info-panel {
-  position: absolute; right: 30px; top: 30px; bottom: 30px; width: 400px; /* 稍微加宽以容纳题目 */
+  position: absolute; right: 30px; top: 30px; bottom: 30px; width: 400px;
   border-radius: 16px; overflow: hidden; z-index: 50;
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.6);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
   display: flex; flex-direction: column;
-  background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px);
+  border: 1px solid #e2e8f0;
 }
-.panel-bg-glow { position: absolute; top: -50px; left: -50px; width: 250px; height: 250px; border-radius: 50%; filter: blur(90px); opacity: 0.3; pointer-events: none; }
+.panel-bg-glow { position: absolute; top: -50px; left: -50px; width: 250px; height: 250px; border-radius: 50%; filter: blur(90px); opacity: 0.15; pointer-events: none; }
 .panel-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; }
-.panel-header { padding: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; }
-.panel-icon-svg { width: 52px; height: 52px; border-radius: 14px; border: 1px solid; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-right: 16px; flex-shrink: 0; }
-.panel-title { font-size: 1.4rem; font-weight: bold; color: #fff; line-height: 1.2; }
+.panel-header { padding: 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; }
+.panel-icon-svg { width: 52px; height: 52px; border-radius: 14px; border: 1px solid; background: rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-right: 16px; flex-shrink: 0; }
+.panel-title { font-size: 1.4rem; font-weight: bold; color: #1e293b; line-height: 1.2; }
 .panel-tag { font-size: 0.75rem; border: 1px solid; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 6px; opacity: 0.8; }
 .close-btn { margin-left: auto; background: none; border: none; color: #94a3b8; font-size: 1.6rem; cursor: pointer; }
-.close-btn:hover { color: #fff; }
+.close-btn:hover { color: #334155; }
 
 .panel-body { padding: 24px; flex: 1; overflow-y: auto; }
-.section-title { font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-.desc-text { line-height: 1.6; color: #cbd5e1; font-size: 0.95rem; margin-bottom: 24px; }
+.section-title { font-size: 0.85rem; color: #64748b; margin-bottom: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+.desc-text { line-height: 1.6; color: #475569; font-size: 0.95rem; margin-bottom: 24px; }
 
-/* 统计行样式优化 */
-.stat-group { margin-bottom: 24px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+/* [修改] 统计行浅色适配 */
+.stat-group { margin-bottom: 24px; padding: 12px; background: #f8fafc; border-radius: 8px; }
 .stat-row { margin-bottom: 12px; }
 .stat-row:last-child { margin-bottom: 0; }
 .stat-label-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
-.stat-label { font-size: 0.8rem; color: #94a3b8; }
-.stat-score { font-family: 'Exo 2', monospace; font-weight: bold; color: #fff; }
-.score-high { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
-.progress-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-.progress-fill { height: 100%; box-shadow: 0 0 10px currentColor; transition: width 0.5s ease-out; }
+.stat-label { font-size: 0.8rem; color: #64748b; }
+.stat-score { font-family: 'Exo 2', monospace; font-weight: bold; color: #334155; }
+.score-high { color: #22c55e; text-shadow: none; }
+.progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; transition: width 0.5s ease-out; }
 
-/* 测验区域样式 */
-.quiz-section { margin-bottom: 24px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.15); }
+/* [修改] 测验区域浅色适配 */
+.quiz-section { margin-bottom: 24px; padding: 16px; background: #f0f9ff; border-radius: 12px; border: 1px dashed #bae6fd; }
 .quiz-start-view { text-align: center; }
-.quiz-intro { font-size: 0.9rem; color: #cbd5e1; margin-bottom: 12px; }
+.quiz-intro { font-size: 0.9rem; color: #475569; margin-bottom: 12px; }
 .quiz-item { margin-bottom: 16px; }
-.quiz-question { font-weight: bold; margin-bottom: 8px; color: #e2e8f0; font-size: 0.95rem; }
+.quiz-question { font-weight: bold; margin-bottom: 8px; color: #334155; font-size: 0.95rem; }
 .quiz-options { display: flex; flex-direction: column; gap: 6px; }
 .quiz-option-label { 
-  display: block; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s;
+  display: block; padding: 8px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s;
 }
-.quiz-option-label:hover { background: rgba(255,255,255,0.1); }
-.quiz-option-label.selected { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; }
+.quiz-option-label:hover { background: #f8fafc; }
+.quiz-option-label.selected { background: #dcfce7; border: 1px solid #22c55e; }
 .quiz-actions { display: flex; justify-content: space-between; margin-top: 16px; }
 
-/* 按钮样式 */
+/* 按钮 */
 .btn-primary { background: #3b82f6; color: white; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
 .btn-primary:hover { background: #2563eb; }
-.btn-secondary { background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-.btn-secondary:hover { color: #fff; border-color: #94a3b8; }
+.btn-secondary { background: transparent; color: #64748b; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+.btn-secondary:hover { color: #334155; border-color: #94a3b8; }
 
-.sub-title { font-size: 0.85rem; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 12px; font-weight: bold; margin-top: 10px; }
+.sub-title { font-size: 0.85rem; color: #94a3b8; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px; font-weight: bold; margin-top: 10px; }
 .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-.skill-tag { font-size: 0.85rem; padding: 5px 12px; border-radius: 6px; border: 1px solid; background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
-.skill-tag:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
+.skill-tag { font-size: 0.85rem; padding: 5px 12px; border-radius: 6px; border: 1px solid #e2e8f0; background: #fff; color: #334155; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
+.skill-tag:hover { background: #f1f5f9; transform: translateY(-1px); }
 
 .highlight-tag { font-weight: 600; border-width: 1px; cursor: pointer !important; padding-right: 8px; }
-.highlight-tag:hover { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+.highlight-tag:hover { background: #f8fafc !important; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
 .link-icon { font-size: 10px; margin-left: 4px; opacity: 0.7; font-family: sans-serif; }
 
 @keyframes pulse {

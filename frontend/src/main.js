@@ -8,9 +8,11 @@ import {
   BarChart,
   PieChart,
   MapChart,
-  ScatterChart,       // ✅ 新增
-  EffectScatterChart, // ✅ 新增
-  LinesChart          // ✅ 新增
+  ScatterChart,       // 散点图
+  EffectScatterChart, // 特效散点
+  LinesChart,         // 路径图
+  RadarChart,         // ✅ [新增] 雷达图 (用于技术栈对比)
+  HeatmapChart        // ✅ [新增] 热力图 (用于技术分布)
 } from 'echarts/charts'
 
 import {
@@ -19,12 +21,13 @@ import {
   LegendComponent,
   TitleComponent,
   GeoComponent,
-  VisualMapComponent // ✅ 新增
+  VisualMapComponent
 } from 'echarts/components'
 
 import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
 
+// 注册组件
 use([
   BarChart,
   PieChart,
@@ -32,6 +35,8 @@ use([
   ScatterChart,
   EffectScatterChart,
   LinesChart,
+  RadarChart,   // ✅ 注册
+  HeatmapChart, // ✅ 注册
   GridComponent,
   TooltipComponent,
   LegendComponent,

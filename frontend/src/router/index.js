@@ -2,9 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import HomeView from '../views/HomeView.vue'
 import WorkHours from '../views/WorkHours.vue'
-import SalaryMap from '../views/SalaryMap.vue'
+// ❌ 删除 SalaryMap 引用
 import SalaryCost from '../views/SalaryCost.vue'
-// 1. 引入新页面
 import SkillTree from '../views/SkillTree.vue'
 
 const routes = [
@@ -20,19 +19,13 @@ const routes = [
     component: WorkHours,
     meta: { title: '996 工时分布' }
   },
-  {
-    path: '/salary-map',
-    name: 'SalaryMap',
-    component: SalaryMap,
-    meta: { title: '薪资地域热力图' }
-  },
+  // ❌ 删除 /salary-map 路由
   {
     path: '/salary-cost',
     name: 'SalaryCost',
     component: SalaryCost,
     meta: { title: '薪资性价比' }
   },
-  // 2. 添加新路由配置
   {
     path: '/skill-tree',
     name: 'SkillTree',
