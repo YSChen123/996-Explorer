@@ -33,7 +33,7 @@
             </span>
             <select v-model="activeIndexStr" class="control-select">
               <option v-for="(c,i) in sortedData" :key="c.name" :value="String(i)">
-                {{ c.name }}（本科:{{ c.bachelor }}%）
+                {{ c.name }}
               </option>
             </select>
           </label>
@@ -730,7 +730,7 @@ const props = defineProps({
       { name: '华为', bachelor: 50, master: 42, phd: 3, college: 5 },
       { name: '京东', bachelor: 66, master: 25, phd: 1, college: 8 },
       { name: '网易', bachelor: 60, master: 31, phd: 2, college: 7 },
-      { name: '快手', bachelor: 63, master: 28, phd: 2, college: 7 }
+      { name: '百度', bachelor: 63, master: 28, phd: 2, college: 7 }
     ]
   },
   colors: {

@@ -3,7 +3,7 @@
     <!-- 头部区域 -->
     <header class="app-header">
       <h1><i class="icon">💻</i> 技术栈可视化分析系统</h1>
-      <p class="subtitle">分析各科技公司的技术栈与技能关键词分布</p>
+      <p class="subtitle">分析国内科技公司的技术栈与技能关键词分布</p>
     </header>
 
     <!-- 主控制面板 -->
@@ -159,7 +159,7 @@
                 :key="company.id"
               >
                 <h4>{{ company.name }}</h4>
-                <div class="wordcloud" ref="wordcloudRefs" :data-id="company.id"></div>
+                <div :id="`wordcloud-${company.id}`" class="wordcloud"></div>
               </div>
             </div>
           </div>
@@ -293,83 +293,64 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
-import 'echarts-wordcloud'
 
-// 响应式数据
+// 响应式数据 - 替换为指定的9家公司
 const companies = ref([
-  { id: 1, name: 'Google', color: '#4285F4', techStack: [
-    { name: 'C++', weight: 9 }, { name: 'Go', weight: 8 }, { name: 'Python', weight: 10 },
-    { name: 'Java', weight: 7 }, { name: 'Kubernetes', weight: 9 }, { name: 'TensorFlow', weight: 9 },
-    { name: 'Docker', weight: 8 }, { name: 'Big Data', weight: 8 }, { name: '分布式系统', weight: 9 },
-    { name: '算法', weight: 10 }, { name: '云计算', weight: 10 }
-  ]},
-  { id: 2, name: 'Meta', color: '#1877F2', techStack: [
-    { name: 'React', weight: 10 }, { name: 'Hack', weight: 9 }, { name: 'Python', weight: 8 },
-    { name: 'PyTorch', weight: 9 }, { name: 'C++', weight: 7 }, { name: 'GraphQL', weight: 8 },
-    { name: '大数据', weight: 8 }, { name: '机器学习', weight: 9 }, { name: 'AR/VR', weight: 7 },
-    { name: '分布式系统', weight: 8 }
-  ]},
-  { id: 3, name: 'Amazon', color: '#FF9900', techStack: [
-    { name: 'Java', weight: 9 }, { name: 'AWS', weight: 10 }, { name: 'Rust', weight: 7 },
-    { name: 'Python', weight: 8 }, { name: 'DynamoDB', weight: 9 }, { name: '微服务', weight: 9 },
-    { name: 'Docker', weight: 8 }, { name: 'Kubernetes', weight: 8 }, { name: '大数据', weight: 8 },
-    { name: '云计算', weight: 10 }
-  ]},
-  { id: 4, name: 'Microsoft', color: '#7FBA00', techStack: [
-    { name: 'C#', weight: 10 }, { name: '.NET', weight: 10 }, { name: 'Azure', weight: 10 },
-    { name: 'TypeScript', weight: 9 }, { name: 'JavaScript', weight: 8 }, { name: 'Python', weight: 8 },
-    { name: 'SQL Server', weight: 9 }, { name: 'Power BI', weight: 8 }, { name: '云计算', weight: 10 },
-    { name: '容器化', weight: 8 }
-  ]},
-  { id: 5, name: 'Apple', color: '#A2AAAD', techStack: [
-    { name: 'Swift', weight: 10 }, { name: 'Objective-C', weight: 7 }, { name: 'C++', weight: 8 },
-    { name: 'Python', weight: 7 }, { name: '机器学习', weight: 8 }, { name: 'iOS开发', weight: 10 },
-    { name: 'macOS开发', weight: 9 }, { name: 'ARKit', weight: 8 }, { name: '算法', weight: 8 },
-    { name: '硬件集成', weight: 7 }
-  ]},
-  { id: 6, name: 'Netflix', color: '#E50914', techStack: [
-    { name: 'Java', weight: 9 }, { name: 'Python', weight: 8 }, { name: '大数据', weight: 9 },
-    { name: '机器学习', weight: 8 }, { name: '微服务', weight: 10 }, { name: '分布式系统', weight: 10 },
-    { name: '容器化', weight: 9 }, { name: '推荐系统', weight: 10 }, { name: '数据管道', weight: 8 },
-    { name: '云原生', weight: 9 }
-  ]},
-  { id: 7, name: '字节跳动', color: '#25F4EE', techStack: [
-    { name: 'Go', weight: 9 }, { name: 'Python', weight: 9 }, { name: 'Java', weight: 8 },
-    { name: 'React', weight: 8 }, { name: 'Vue.js', weight: 7 }, { name: '大数据', weight: 10 },
-    { name: '推荐算法', weight: 10 }, { name: '微服务', weight: 9 }, { name: '容器化', weight: 8 },
-    { name: '音视频处理', weight: 8 }
-  ]},
-  { id: 8, name: '阿里巴巴', color: '#FF6A00', techStack: [
+  { id: 1, name: '阿里', color: '#FF6A00', techStack: [
     { name: 'Java', weight: 10 }, { name: 'Spring Cloud', weight: 10 }, { name: '大数据', weight: 10 },
     { name: 'MySQL', weight: 9 }, { name: 'Redis', weight: 9 }, { name: 'Dubbo', weight: 9 },
     { name: '微服务', weight: 10 }, { name: '分布式系统', weight: 10 }, { name: '云计算', weight: 9 },
-    { name: '容器化', weight: 8 }
+    { name: '容器化', weight: 8 }, { name: '中台架构', weight: 9 }, { name: 'OceanBase', weight: 8 }
   ]},
-  { id: 9, name: '腾讯', color: '#07C160', techStack: [
-    { name: 'C++', weight: 9 }, { name: 'Go', weight: 8 }, { name: 'Java', weight: 8 },
-    { name: 'Python', weight: 8 }, { name: '大数据', weight: 9 }, { name: '云计算', weight: 9 },
-    { name: '微服务', weight: 9 }, { name: '游戏引擎', weight: 8 }, { name: '音视频', weight: 9 },
-    { name: '即时通讯', weight: 10 }
-  ]},
-  { id: 10, name: '华为', color: '#FF0000', techStack: [
+  { id: 2, name: '华为', color: '#FF0000', techStack: [
     { name: 'C++', weight: 10 }, { name: 'Java', weight: 9 }, { name: 'Python', weight: 8 },
     { name: '嵌入式开发', weight: 10 }, { name: '5G', weight: 10 }, { name: '云计算', weight: 9 },
     { name: 'AI芯片', weight: 8 }, { name: '分布式系统', weight: 9 }, { name: '容器化', weight: 8 },
-    { name: '网络协议', weight: 9 }
+    { name: '网络协议', weight: 9 }, { name: '鸿蒙系统', weight: 10 }, { name: '数据库', weight: 8 }
   ]},
-  { id: 11, name: 'Uber', color: '#000000', techStack: [
-    { name: 'Go', weight: 9 }, { name: 'Python', weight: 8 }, { name: 'Java', weight: 7 },
-    { name: '大数据', weight: 10 }, { name: '机器学习', weight: 9 }, { name: '微服务', weight: 10 },
-    { name: '实时计算', weight: 9 }, { name: '地理信息系统', weight: 10 }, { name: '分布式系统', weight: 9 },
-    { name: '容器化', weight: 8 }
+  { id: 3, name: '京东', color: '#E6141E', techStack: [
+    { name: 'Java', weight: 10 }, { name: 'Spring', weight: 9 }, { name: '大数据', weight: 9 },
+    { name: '分布式系统', weight: 10 }, { name: '微服务', weight: 9 }, { name: '云计算', weight: 8 },
+    { name: '容器化', weight: 8 }, { name: '物流系统', weight: 9 }, { name: '推荐算法', weight: 8 },
+    { name: '供应链', weight: 9 }, { name: '高并发', weight: 10 }, { name: '消息队列', weight: 8 }
   ]},
-  { id: 12, name: 'Airbnb', color: '#FF5A5F', techStack: [
-    { name: 'React', weight: 10 }, { name: 'Ruby on Rails', weight: 8 }, { name: 'Java', weight: 7 },
-    { name: '大数据', weight: 8 }, { name: '机器学习', weight: 8 }, { name: '微服务', weight: 9 },
-    { name: '容器化', weight: 8 }, { name: '推荐系统', weight: 9 }, { name: '支付系统', weight: 8 },
-    { name: '搜索优化', weight: 9 }
+  { id: 4, name: '百度', color: '#2932E1', techStack: [
+    { name: 'Python', weight: 9 }, { name: 'C++', weight: 8 }, { name: 'Java', weight: 7 },
+    { name: '机器学习', weight: 10 }, { name: '深度学习', weight: 10 }, { name: '自然语言处理', weight: 9 },
+    { name: '搜索引擎', weight: 10 }, { name: '大数据', weight: 9 }, { name: '云计算', weight: 8 },
+    { name: '推荐算法', weight: 9 }, { name: '知识图谱', weight: 8 }, { name: '自动驾驶', weight: 9 }
+  ]},
+  { id: 5, name: '美团', color: '#FFB300', techStack: [
+    { name: 'Java', weight: 10 }, { name: 'Go', weight: 8 }, { name: 'Python', weight: 7 },
+    { name: '大数据', weight: 9 }, { name: '分布式系统', weight: 10 }, { name: '微服务', weight: 10 },
+    { name: '容器化', weight: 9 }, { name: '推荐算法', weight: 9 }, { name: '地理位置', weight: 9 },
+    { name: '高并发', weight: 10 }, { name: '实时计算', weight: 8 }, { name: '消息队列', weight: 8 }
+  ]},
+  { id: 6, name: '腾讯', color: '#07C160', techStack: [
+    { name: 'C++', weight: 9 }, { name: 'Go', weight: 8 }, { name: 'Java', weight: 8 },
+    { name: 'Python', weight: 8 }, { name: '大数据', weight: 9 }, { name: '云计算', weight: 9 },
+    { name: '微服务', weight: 9 }, { name: '游戏引擎', weight: 8 }, { name: '音视频', weight: 9 },
+    { name: '即时通讯', weight: 10 }, { name: '容器化', weight: 8 }, { name: '小程序', weight: 9 }
+  ]},
+  { id: 7, name: '网易', color: '#D10A1B', techStack: [
+    { name: 'C++', weight: 9 }, { name: 'Java', weight: 8 }, { name: 'Python', weight: 7 },
+    { name: '游戏开发', weight: 10 }, { name: '大数据', weight: 8 }, { name: '云计算', weight: 8 },
+    { name: '容器化', weight: 7 }, { name: '推荐算法', weight: 8 }, { name: '音视频', weight: 8 },
+    { name: '网络安全', weight: 8 }, { name: '数据库', weight: 8 }, { name: '消息队列', weight: 7 }
+  ]},
+  { id: 8, name: '小米', color: '#FF6900', techStack: [
+    { name: 'Java', weight: 9 }, { name: 'Kotlin', weight: 8 }, { name: 'C++', weight: 8 },
+    { name: 'Android开发', weight: 10 }, { name: 'IoT', weight: 10 }, { name: '大数据', weight: 8 },
+    { name: '云计算', weight: 8 }, { name: '嵌入式开发', weight: 9 }, { name: '智能硬件', weight: 9 },
+    { name: '容器化', weight: 7 }, { name: '移动端', weight: 10 }, { name: '分布式系统', weight: 8 }
+  ]},
+  { id: 9, name: '字节', color: '#25F4EE', techStack: [
+    { name: 'Go', weight: 9 }, { name: 'Python', weight: 9 }, { name: 'Java', weight: 8 },
+    { name: 'React', weight: 8 }, { name: 'Vue.js', weight: 7 }, { name: '大数据', weight: 10 },
+    { name: '推荐算法', weight: 10 }, { name: '微服务', weight: 9 }, { name: '容器化', weight: 8 },
+    { name: '音视频处理', weight: 8 }, { name: '高并发', weight: 10 }, { name: '分布式系统', weight: 9 }
   ]}
 ])
 
@@ -394,8 +375,8 @@ const views = ref([
   { id: 'distribution', name: '分布图', icon: '🔥', description: '技术分布热力图，展示技术在各公司的分布情况' }
 ])
 
-// ECharts实例引用
-const wordcloudRefs = ref([])
+// ECharts实例引用 - 使用对象存储词云实例
+const wordcloudInstances = ref({})
 const radarChart = ref(null)
 const barChart = ref(null)
 const heatmapChart = ref(null)
@@ -562,76 +543,92 @@ const exportTableToCSV = () => {
   document.body.removeChild(link)
 }
 
-// 图表渲染方法
+// 图表渲染方法 - 修复词云渲染bug
 const renderWordClouds = () => {
-  // 清除现有的词云
-  wordcloudRefs.value.forEach(el => {
-    if (el && el.__echarts_instance__) {
-      echarts.dispose(el)
-    }
-  })
-  
-  // 为每个选中的公司创建词云
-  selectedCompanies.value.forEach((company, index) => {
-    const container = wordcloudRefs.value.find(el => el?.dataset?.id === company.id.toString())
-    if (!container) return
-    
-    const chart = echarts.init(container)
-    
-    const wordCloudData = company.techStack
-      .slice(0, wordCloudMaxWords.value)
-      .map(tech => ({
-        name: tech.name,
-        value: tech.weight * 10,
-        textStyle: {
-          color: company.color
+  // 等待DOM更新完成
+  nextTick(() => {
+    // 清除已不存在的公司词云实例
+    Object.keys(wordcloudInstances.value).forEach(companyId => {
+      if (!selectedCompanyIds.value.includes(parseInt(companyId))) {
+        if (wordcloudInstances.value[companyId]) {
+          wordcloudInstances.value[companyId].dispose()
         }
-      }))
+        delete wordcloudInstances.value[companyId]
+      }
+    })
     
-    const option = {
-      tooltip: {
-        show: true,
-        formatter: (params) => {
-          return `${params.name}<br/>权重: ${params.value / 10}`
-        }
-      },
-      series: [{
-        type: 'wordCloud',
-        shape: 'circle',
-        left: 'center',
-        top: 'center',
-        width: '90%',
-        height: '90%',
-        right: null,
-        bottom: null,
-        sizeRange: [12, 40],
-        rotationRange: [0, 0],
-        rotationStep: 45,
-        gridSize: 8,
-        drawOutOfBound: false,
-        layoutAnimation: true,
-        textStyle: {
-          fontFamily: 'sans-serif',
-          fontWeight: 'bold',
-          color: function () {
-            return company.color
-          }
-        },
-        emphasis: {
-          focus: 'self',
+    // 为每个选中的公司创建词云
+    selectedCompanies.value.forEach((company) => {
+      const containerId = `wordcloud-${company.id}`
+      const container = document.getElementById(containerId)
+      
+      if (!container) {
+        console.warn(`找不到词云容器: ${containerId}`)
+        return
+      }
+      
+      // 如果已存在实例，先销毁
+      if (wordcloudInstances.value[company.id]) {
+        wordcloudInstances.value[company.id].dispose()
+      }
+      
+      const chart = echarts.init(container)
+      
+      const wordCloudData = company.techStack
+        .slice(0, wordCloudMaxWords.value)
+        .map(tech => ({
+          name: tech.name,
+          value: tech.weight * 10,
           textStyle: {
-            shadowBlur: 10,
-            shadowColor: '#333'
+            color: company.color
+          }
+        }))
+      
+      const option = {
+        tooltip: {
+          show: true,
+          formatter: (params) => {
+            return `${params.name}<br/>权重: ${params.value / 10}`
           }
         },
-        data: wordCloudData
-      }]
-    }
-    
-    chart.setOption(option)
-    
-    // 保存实例引用
-    container.__echarts_instance__ = chart
+        series: [{
+          type: 'wordCloud',
+          shape: 'circle',
+          left: 'center',
+          top: 'center',
+          width: '90%',
+          height: '90%',
+          right: null,
+          bottom: null,
+          sizeRange: [12, 40],
+          rotationRange: [0, 0],
+          rotationStep: 45,
+          gridSize: 8,
+          drawOutOfBound: false,
+          layoutAnimation: true,
+          textStyle: {
+            fontFamily: 'sans-serif',
+            fontWeight: 'bold',
+            color: function () {
+              return company.color
+            }
+          },
+          emphasis: {
+            focus: 'self',
+            textStyle: {
+              shadowBlur: 10,
+              shadowColor: '#333'
+            }
+          },
+          data: wordCloudData
+        }]
+      }
+      
+      chart.setOption(option)
+      
+      // 保存实例引用
+      wordcloudInstances.value[company.id] = chart
+    })
   })
 }
 
@@ -1005,9 +1002,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   // 清理ECharts实例
-  wordcloudRefs.value.forEach(el => {
-    if (el && el.__echarts_instance__) {
-      echarts.dispose(el.__echarts_instance__)
+  Object.values(wordcloudInstances.value).forEach(instance => {
+    if (instance) {
+      instance.dispose()
     }
   })
   
@@ -1029,9 +1026,9 @@ onUnmounted(() => {
 
 const handleResize = () => {
   // 重新调整图表大小
-  wordcloudRefs.value.forEach(el => {
-    if (el && el.__echarts_instance__) {
-      el.__echarts_instance__.resize()
+  Object.values(wordcloudInstances.value).forEach(instance => {
+    if (instance) {
+      instance.resize()
     }
   })
   
@@ -1080,7 +1077,7 @@ const handleResize = () => {
   margin: 0;
   font-size: 2.2rem;
   font-weight: 700;
-  background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335);
+  background: linear-gradient(90deg, #FF6A00, #FF0000, #2932E1, #07C160);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -1091,7 +1088,7 @@ const handleResize = () => {
 }
 
 [data-theme="dark"] .app-header h1 {
-  background: linear-gradient(90deg, #8ab4f8, #81c995, #fde293, #f28b82);
+  background: linear-gradient(90deg, #ff9a4d, #ff6666, #8a8fff, #5ef7a5);
   -webkit-background-clip: text;
   background-clip: text;
 }

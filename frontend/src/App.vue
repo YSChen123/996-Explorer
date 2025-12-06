@@ -233,22 +233,20 @@
 
         <!-- 3. 工作幸福感：6/10/11 -->
         <!-- 3.1 加班强度 -->
-        <div
-          v-else-if="activeMain === 'happiness' && activeSub === 'overtimeIntensity'"
-        >
-          <h2>“加班强度” / 工作强度标签可视化</h2>
+        <div v-else-if="activeMain === 'happiness' && activeSub === 'overtimeIntensity'">
+          <h2>"加班强度" / 工作强度标签可视化</h2>
           <p>
-            基于 JD 文本中的关键词（如「加班」「大小周」「弹性工作」「高强度」等），
-            估算每家公司疑似 996 岗位的占比，从文本侧刻画用工文化与工作强度。
+            基于各大厂公开数据和员工反馈，统计2025年各大厂的周平均工时数据，
+            从工时维度客观反映各公司的工作强度，帮助求职者了解真实的工作节奏。
           </p>
           <p class="hint">
-            图形设计：
-            · 条形图：各公司“疑似 996 岗位占比”
-            · 词云：高频的用工相关关键词（弹性、奋斗、快节奏、压力大等）。
+            数据说明：<br>
+            · 数据来源：2025年大厂工时排行榜<br>
+            · 加班重灾区：周工时≥54h<br>
+            · 加班轻灾区：52.5-54h<br>
+            · 不太加班区：52-52.5h
           </p>
-          <div class="placeholder-card">
-            这里预留工作强度可视化组件（OvertimeIntensityChart / WorkloadWordCloud）。
-          </div>
+          <OvertimeIntensityChart />
         </div>
 
         <!-- 3.2 城市生活成本 vs 薪资 -->
@@ -271,23 +269,20 @@
         </div>
 
         <!-- 3.3 福利标签 / 企业文化 -->
-        <div
-          v-else-if="activeMain === 'happiness' && activeSub === 'welfareCulture'"
-        >
+        <div v-else-if="activeMain === 'happiness' && activeSub === 'welfareCulture'">
           <h2>福利标签 / 企业文化关键词可视化</h2>
           <p>
-            从福利与企业文化描述字段中提取关键词，例如「五险一金」「年终奖」「期权」
-            「免费三餐」「房补」「弹性打卡」「带薪病假」等，看看哪家更强调福利，
-            哪家更偏“硬核绩效导向”。
+            分析各大厂在福利待遇方面的差异，从住房补贴、餐饮福利、交通报销、
+            带薪假期等维度对比，了解哪些公司更注重员工关怀，哪些公司福利更"硬核"。
           </p>
           <p class="hint">
-            图形设计：
-            · 词云：福利相关高频关键词
-            · 堆叠条形图：公司 vs 某类福利的出现比例（如“期权/股票”相关岗位占比）。
+            数据说明：<br>
+            · 住房补贴：针对不同人群的租房补贴政策<br>
+            · 餐饮福利：免费三餐或餐补标准<br>
+            · 交通补贴：夜间打车报销政策<br>
+            · 带薪病假：年度带薪病假天数
           </p>
-          <div class="placeholder-card">
-            这里预留福利与文化可视化组件（BenefitWordCloud / BenefitRatioChart）。
-          </div>
+          <BenefitWordCloud />
         </div>
 
         <!-- 4. 综合推荐排名（无子项） -->
@@ -325,6 +320,8 @@ import RoleStructureChart from './components/RoleStructureChart.vue'
 import TechStackView from './components/TechStackView.vue'
 import CoinIncome from './components/CoinIncome.vue'
 import CompanyBasicInfo from './components/CompanyBasicInfo.vue'
+import OvertimeIntensityChart from './components/OvertimeIntensityChart.vue'
+import BenefitWordCloud from './components/BenefitWordCloud.vue'
 
 const activeMain = ref('companyIntro')     // 当前选中的大块
 const activeSub = ref('companyBasic')      // 默认显示：大厂基本信息一览
