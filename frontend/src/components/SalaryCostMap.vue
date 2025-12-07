@@ -11,7 +11,7 @@
         </div>
         <div class="header-right">
           <span class="highlight-text">
-            数据来源: 对标 (共 {{ totalDataCount }} 条样本)
+            数据来源: 对标
           </span>
         </div>
       </div>
@@ -39,7 +39,7 @@
     </div>
 
     <div class="company-grid-section">
-      <h3 class="section-title">🏢 大厂薪资情报 & 范围 (点击切换视角)</h3>
+      <h3 class="section-title">🏢 大厂薪资情报 & 范围 (点击切换地图)</h3>
       
       <div class="company-grid">
         <div 
@@ -68,11 +68,7 @@
               <span class="label">💰 年包范围</span>
               <span class="value salary-range">{{ c.minSalary }}w - {{ c.maxSalary }}w</span>
             </div>
-            <div class="info-item">
-              <span class="label">📊 样本数</span>
-              <span class="value">{{ c.sampleCount }} 条</span>
             </div>
-          </div>
 
           <div class="card-bg-decoration"></div>
         </div>
@@ -609,7 +605,6 @@ const mapOption = computed(() => {
         return `
           <div style="width: 180px; font-family: sans-serif;">
             <div style="background:${color}; padding:8px 12px; color:#fff; font-weight:bold; font-size:14px;">
-              ${params.name} <span style="font-size:11px; opacity:0.8; float:right;">(样本:${count})</span>
             </div>
             <div style="padding:12px; font-size:13px; color:#4b5563; line-height:1.8;">
               <div style="display:flex; justify-content:space-between;">
