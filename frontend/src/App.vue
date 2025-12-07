@@ -93,9 +93,7 @@
               对比各大厂在不同薪资档位（如 10-15k、15-20k 等）的岗位数量与金币堆积模拟。
             </p>
             <CompanySalaryCompare />
-            <div style="height: 420px; margin-top: 16px; border-radius: 14px; overflow: hidden; background: #fff;">
-              <CoinIncome />
-            </div>
+
           </div>
 
           <div v-else-if="activeSub === 'techStack'">
@@ -172,7 +170,6 @@ import CompanySalaryCompare from './components/CompanySalaryCompare.vue' // 原�
 import SalaryEduBackground from './components/SalaryEduBackground.vue'     // 新增的学历经验图
 import CityDistribution from './components/CityDistribution.vue'
 import ComprehensiveRanking from './components/ComprehensiveRanking.vue'
-import CoinIncome from './components/CoinIncome.vue'
 import CompanyBasicInfo from './components/CompanyBasicInfo.vue'
 import EducationRequirementChart from './components/EducationRequirementChart.vue'
 import ExperienceRequirementChart from './components/ExperienceRequirementChart.vue'
