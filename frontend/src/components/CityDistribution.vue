@@ -26,26 +26,17 @@
       </div>
     </section>
 
-    <!-- 图 2：一线 vs 新一线城市能级对比 -->
-    <section class="card">
-      <h2 class="card-title">一线 / 新一线城市能级对比</h2>
-      <p class="card-desc">
-        将所有「公司-城市」出现次数汇总到城市能级：一线（北京 / 上海 / 广州 / 深圳），
-        新一线（杭州 / 南京 / 成都 / 西安），反映大厂对不同城市层级的布局倾向。
-      </p>
-      <div class="chart-wrapper half">
-        <v-chart class="chart" :option="tierPieOption" autoresize />
-      </div>
-    </section>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import ChinaMap from './ChinaMap.vue'   // ✅ 同目录相对路径引入
+import * as echarts from 'echarts'
+import ChinaMap from './ChinaMap.vue'   
 
 // 对应每个城市被多少家公司覆盖
 // 按 9 家大厂真实覆盖城市统计
+
 const cityNames = [
   '北京',
   '上海',
@@ -56,103 +47,181 @@ const cityNames = [
   '南京',
   '杭州'
 ]
-
-// 对应每个城市被多少家公司覆盖
 const cityCompanyCounts = [8, 8, 6, 5, 5, 4, 4, 3]
 
-// 先合并成对象数组，然后按数量降序排
+// 排序 + 一些统计量
 const sortedCityData = cityNames
   .map((name, idx) => ({ name, value: cityCompanyCounts[idx] }))
-  .sort((a, b) => b.value - a.value)  
+  .sort((a, b) => b.value - a.value)
 
-// 图 1：城市覆盖热度条形图（降序）
+const maxCoverage = Math.max(...sortedCityData.map(d => d.value)) || 1
+const avgCoverage =
+  sortedCityData.reduce((sum, d) => sum + d.value, 0) / sortedCityData.length
+
+
+const podiumLayout = (() => {
+  const n = sortedCityData.length
+  const res = new Array(n)
+
+  const center = Math.floor((n - 1) / 2) // 8 个时 = 3，冠军在中间
+  let left = center - 1
+  let right = center + 1
+  let useLeftNext = true
+
+  sortedCityData.forEach((d, i) => {
+    const rank = i + 1
+    if (i === 0) {
+      // 冠军放中间
+      res[center] = { ...d, rank }
+    } else {
+      // 之后的名次左右交替排，注意别越界
+      if ((useLeftNext && left >= 0) || right >= n) {
+        res[left] = { ...d, rank }
+        left--
+      } else {
+        res[right] = { ...d, rank }
+        right++
+      }
+      useLeftNext = !useLeftNext
+    }
+  })
+
+  return res
+})()
+
+// 领奖台柱状图
 const cityBarOption = ref({
-  grid: { left: 80, right: 30, top: 30, bottom: 30 },
-  tooltip: {
-    trigger: 'axis',
-    axisPointer: { type: 'shadow' },
-    valueFormatter: (v) => `${v} 家`
+  backgroundColor: 'transparent',
+  grid: {
+    left: 10,      // 往两边缩一点，让台子更挤在中间
+    right: 10,
+    top: 40,
+    bottom: 60
   },
   xAxis: {
-    type: 'value',
-    name: '覆盖公司数量（家）',
-    nameLocation: 'middle',
-    nameGap: 40,
-    axisLine: { lineStyle: { color: '#9ca3af' } },
-    axisLabel: { color: '#6b7280' },
-    splitLine: { lineStyle: { color: '#e5e7eb' } }
+    type: 'category',
+    data: podiumLayout.map(d => d.name),
+    boundaryGap: true,
+    axisTick: {
+      show: false,
+      alignWithLabel: true
+    },
+    axisLine: { show: false },
+    axisLabel: {
+      color: '#374151',
+      fontSize: 12,
+      margin: 12
+    }
   },
   yAxis: {
-    type: 'category',
-    data: sortedCityData.map(d => d.name),   // 用排好序的城市名
-    axisLine: { lineStyle: { color: '#9ca3af' } },
-    axisLabel: { color: '#374151' }
+    // 你原来的 yAxis 配置保持不变
+    type: 'value',
+    min: 0,
+    max: maxCoverage + 1,
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: {
+      color: '#9ca3af',
+      fontSize: 11
+    },
+    splitLine: {
+      show: true,
+      lineStyle: {
+        color: '#e5e7eb',
+        type: 'dashed'
+      }
+    }
   },
   series: [
     {
+      name: '覆盖公司数',
       type: 'bar',
-      data: sortedCityData.map(d => d.value), // 用排好序的数量
-      barWidth: 18,
-      itemStyle: {
-        borderRadius: [4, 4, 4, 4],
-        color: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 1,
-          y2: 0,
-          colorStops: [
-            { offset: 0, color: '#4f46e5' },
-            { offset: 1, color: '#22c55e' }
-          ]
+      // 关键：柱子要粗 & 之间没有空隙
+      barWidth: '80%',        // 每个类别里占 80% 宽
+      barCategoryGap: '0%',   // 类别之间不留缝
+      barGap: '0%',           // 系列之间不留缝（虽然这里只有一个系列）
+      data: podiumLayout.map(p => {
+        const rank = p.rank
+        let color
+        if (rank === 1) {
+          color = new echarts.graphic.LinearGradient(0, 1, 0, 0, [
+            { offset: 0, color: '#FDE68A' },
+            { offset: 1, color: '#F59E0B' }
+          ])
+        } else if (rank === 2) {
+          color = new echarts.graphic.LinearGradient(0, 1, 0, 0, [
+            { offset: 0, color: '#E5E7EB' },
+            { offset: 1, color: '#9CA3AF' }
+          ])
+        } else if (rank === 3) {
+          color = new echarts.graphic.LinearGradient(0, 1, 0, 0, [
+            { offset: 0, color: '#FED7AA' },
+            { offset: 1, color: '#EA580C' }
+          ])
+        } else {
+          color = new echarts.graphic.LinearGradient(0, 1, 0, 0, [
+            { offset: 0, color: '#BFDBFE' },
+            { offset: 1, color: '#22C55E' }
+          ])
         }
+
+        return {
+          value: p.value,
+          rank,
+          itemStyle: {
+            color,
+            // 更像台阶：上面微圆角，下面直角
+            borderRadius: [6, 6, 0, 0],
+            shadowBlur: rank <= 3 ? 18 : 6,
+            shadowColor:
+              rank === 1
+                ? 'rgba(245,158,11,0.45)'
+                : rank === 2
+                ? 'rgba(148,163,184,0.45)'
+                : rank === 3
+                ? 'rgba(234,88,12,0.4)'
+                : 'rgba(59,130,246,0.25)'
+          }
+        }
+      }),
+      label: {
+        show: true,
+        position: 'top',
+        formatter: params => `NO.${params.data.rank}\n${params.value} 家`,
+        color: '#111827',
+        fontSize: 11,
+        fontWeight: 600,
+        lineHeight: 16
+      },
+      markLine: {
+        symbol: 'none',
+        lineStyle: {
+          type: 'dashed',
+          color: '#f97316',
+          width: 1.2
+        },
+        label: {
+          show: true,
+          position: 'insideEndTop',
+          formatter: `平均覆盖：${avgCoverage.toFixed(1)} 家`,
+          color: '#111827',
+          fontSize: 11,
+          backgroundColor: 'rgba(254,243,199,0.96)',
+          padding: [3, 8],
+          borderRadius: 999,
+          fontWeight: 600,
+          lineHeight: 16
+        },
+        data: [{ yAxis: avgCoverage }]
       }
     }
   ]
 })
 
 
-// 图 2：城市能级饼图（按「一线 vs 新一线」聚合）
-// 一线：北 / 上 / 广 / 深 → 8 + 8 + 5 + 5 = 26
-// 新一线：杭 / 宁 / 成 / 西 → 3 + 4 + 6 + 4 = 17
-const tierPieOption = ref({
-  tooltip: {
-    trigger: 'item',
-    valueFormatter: (v) => `${v} 次`
-  },
-  legend: {
-    bottom: 4,
-    textStyle: { color: '#374151', fontSize: 11 }
-  },
-  series: [
-    {
-      name: '城市能级',
-      type: 'pie',
-      radius: ['40%', '70%'],
-      center: ['50%', '45%'],
-      avoidLabelOverlap: false,
-      itemStyle: {
-        borderRadius: 6,
-        borderColor: '#fff',
-        borderWidth: 2
-      },
-      label: {
-        formatter: '{b}\n{d}%',
-        color: '#374151'
-      },
-      data: [
-        {
-          name: '一线城市（北 / 上 / 广 / 深）',
-          value: 26
-        },
-        {
-          name: '新一线城市（杭 / 宁 / 成 / 西）',
-          value: 17
-        }
-      ]
-    }
-  ]
-})
+
+
+
 </script>
 
 <style scoped>

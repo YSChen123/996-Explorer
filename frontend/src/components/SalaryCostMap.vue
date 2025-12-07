@@ -1,6 +1,45 @@
-<template>
+<template> 
   <div id="salary-dashboard" class="dashboard-container">
     
+    <!-- ① 公司卡片区域（挪到最上面） -->
+    <div class="company-grid-section">
+      <h3 class="section-title">🏢 大厂薪资情报 & 范围 (点击切换地图)</h3>
+      
+      <div class="company-grid">
+        <div 
+          v-for="c in companiesWithStats" 
+          :key="c.key"
+          class="company-card"
+          :class="{ 'is-active': activeCompanyKey === c.key }"
+          :style="{ '--brand-color': c.color }"
+          @click="activeCompanyKey = c.key"
+        >
+          <div class="card-header">
+            <div class="logo-box">{{ c.badge }}</div>
+            <div class="name-box">
+              <div class="cn-name">{{ c.nameZh }}</div>
+              <div class="hq-tag">总部: {{ c.hq }}</div>
+            </div>
+            <div v-if="activeCompanyKey === c.key" class="viewing-tag">当前查看</div>
+          </div>
+          
+          <div class="card-body">
+            <div class="info-item">
+              <span class="label">💼 典型业务</span>
+              <span class="value text-truncate" :title="c.business">{{ c.business }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">💰 年包范围</span>
+              <span class="value salary-range">{{ c.minSalary }}w - {{ c.maxSalary }}w</span>
+            </div>
+          </div>
+
+          <div class="card-bg-decoration"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 地图区域（放到下面） -->
     <div class="map-section card-shadow">
       <div class="section-header">
         <div class="header-left">
@@ -37,45 +76,9 @@
         </div>
       </div>
     </div>
-
-    <div class="company-grid-section">
-      <h3 class="section-title">🏢 大厂薪资情报 & 范围 (点击切换地图)</h3>
-      
-      <div class="company-grid">
-        <div 
-          v-for="c in companiesWithStats" 
-          :key="c.key"
-          class="company-card"
-          :class="{ 'is-active': activeCompanyKey === c.key }"
-          :style="{ '--brand-color': c.color }"
-          @click="activeCompanyKey = c.key"
-        >
-          <div class="card-header">
-            <div class="logo-box">{{ c.badge }}</div>
-            <div class="name-box">
-              <div class="cn-name">{{ c.nameZh }}</div>
-              <div class="hq-tag">总部: {{ c.hq }}</div>
-            </div>
-            <div v-if="activeCompanyKey === c.key" class="viewing-tag">当前查看</div>
-          </div>
-          
-          <div class="card-body">
-            <div class="info-item">
-              <span class="label">💼 典型业务</span>
-              <span class="value text-truncate" :title="c.business">{{ c.business }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">💰 年包范围</span>
-              <span class="value salary-range">{{ c.minSalary }}w - {{ c.maxSalary }}w</span>
-            </div>
-            </div>
-
-          <div class="card-bg-decoration"></div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
@@ -703,7 +706,7 @@ const mapOption = computed(() => {
   flex-shrink: 0; /* 防止被挤压 */
   
   /* 关键修改：高度固定为 450px，不要太高，把空间留给下面的列表 */
-  height: 1000px; 
+  height: 750px; 
   min-height: 450px; 
   
   display: flex;

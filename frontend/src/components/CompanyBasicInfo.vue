@@ -70,7 +70,7 @@
 
         <!-- 估算薪资 -->
         <article class="info-card">
-          <div class="info-card-title">应届技术岗年包（估算）</div>
+          <div class="info-card-title">应届技术岗年包</div>
           <div class="info-card-body">
             <p class="salary-main">
               {{ activeCompany.salaryRange }}

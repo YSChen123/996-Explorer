@@ -88,7 +88,7 @@
 
         <template v-else-if="activeMain === 'jobFactors'">
           <div v-if="activeSub === 'salaryDist'">
-            <h2>薪资区间分布（按公司对比）</h2>
+            <h2>薪资区间分布</h2>
             <p>
               对比各大厂在不同薪资档位（如 10-15k、15-20k 等）的岗位数量与金币堆积模拟。
             </p>
@@ -194,10 +194,10 @@ const openMain = ref('jobFactors')
 const mainNavItems = [
   {
     key: 'companyIntro',
-    label: '公司&城市概览',
+    label: '大厂基本信息认知',
     children: [
-      { key: 'companyBasic', label: '大厂基本信息一览' },
-      { key: 'cityDist',     label: '城市分布 & 能级对比' }
+      { key: 'companyBasic', label: '大厂简介说明' },
+      { key: 'cityDist',     label: '所在城市分布' }
     ]
   },
   {
@@ -266,7 +266,6 @@ function selectSub(mainKey, subKey) {
 </script>
 
 <style scoped>
-/* 样式保持不变，略去以节省篇幅，直接复用原App.vue的样式即可 */
 .layout {
   min-height: 100vh;
   display: flex;
@@ -276,10 +275,10 @@ function selectSub(mainKey, subKey) {
 }
 
 .sidebar {
-  width: 280px;
+  width: 300px; /* 稍微加宽一点，让大字号不显得挤 */
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
-  padding: 24px 16px;
+  padding: 28px 18px;
   display: flex;
   flex-direction: column;
 }
@@ -287,15 +286,15 @@ function selectSub(mainKey, subKey) {
 .brand {
   display: flex;
   align-items: center;
-  padding-bottom: 20px;
-  margin-bottom: 10px;
+  padding-bottom: 22px;
+  margin-bottom: 14px;
   border-bottom: 1px solid #e5e7eb;
   padding-left: 8px;
 }
 
 .brand-logo {
-  width: 48px;
-  height: 48px;
+  width: 80px;       /* ✅ logo 放大 */
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
   background: #4f46e5;
@@ -311,27 +310,31 @@ function selectSub(mainKey, subKey) {
 }
 
 .brand-text {
-  margin-left: 12px;
+  margin-left: 14px;
 }
 
 .brand-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 22px;   /* ✅ 标题字号变大 */
+  font-weight: 800;
   color: #111827;
+  letter-spacing: 0.02em;
 }
 
 .brand-subtitle {
-  font-size: 12px;
+  margin-top: 4px;
+  font-size: 18px;   /* ✅ 副标题略放大 */
   color: #6b7280;
 }
 
+/* 导航区整体字号稍微上调 */
 .nav {
   flex: 1;
   overflow-y: auto;
+  margin-top: 4px;
 }
 
 .nav-group {
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .nav-item {
@@ -341,12 +344,12 @@ function selectSub(mainKey, subKey) {
   border: none;
   cursor: pointer;
   color: #374151;
-  font-size: 14px;
+  font-size: 19px;   /* ✅ 导航主字体变大 */
 }
 
 .nav-main {
-  padding: 12px;
-  border-radius: 8px;
+  padding: 14px 12px; /* 稍微加大内边距 */
+  border-radius: 10px;
   font-weight: 600;
   display: flex;
   justify-content: space-between;
@@ -363,7 +366,7 @@ function selectSub(mainKey, subKey) {
 }
 
 .nav-arrow {
-  font-size: 12px;
+  font-size: 13px;
   transition: transform 0.2s;
 }
 .nav-arrow.open {
@@ -372,13 +375,14 @@ function selectSub(mainKey, subKey) {
 
 .nav-sub-list {
   margin-top: 4px;
-  padding-left: 12px;
+  padding-left: 14px;
 }
 
 .nav-sub {
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 12px 20px;           /* ✅ 子项 padding + 字号加大 */
+  border-radius: 8px;
   margin-bottom: 2px;
+  font-size: 18px;
 }
 
 .nav-sub:hover {
@@ -389,14 +393,15 @@ function selectSub(mainKey, subKey) {
 .nav-sub.active {
   background: #e0e7ff;
   color: #4338ca;
-  font-weight: 500;
+  font-weight: 600;
 }
 
+/* 底部说明字体也稍微拉大一点，不那么“迷你” */
 .sidebar-footer {
   margin-top: auto;
-  padding-top: 20px;
+  padding-top: 22px;
   border-top: 1px solid #e5e7eb;
-  font-size: 12px;
+  font-size: 13px;
   color: #9ca3af;
   padding-left: 8px;
 }
@@ -415,7 +420,7 @@ function selectSub(mainKey, subKey) {
 
 .content-header {
   background: #fff;
-  padding: 24px 32px;
+  padding: 26px 32px;
   border-bottom: 1px solid #e5e7eb;
 }
 
