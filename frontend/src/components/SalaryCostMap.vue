@@ -703,7 +703,7 @@ const mapOption = computed(() => {
   flex-shrink: 0; /* 防止被挤压 */
   
   /* 关键修改：高度固定为 450px，不要太高，把空间留给下面的列表 */
-  height: 450px; 
+  height: 1000px; 
   min-height: 450px; 
   
   display: flex;
