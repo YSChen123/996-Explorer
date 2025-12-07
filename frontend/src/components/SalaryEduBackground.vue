@@ -215,9 +215,9 @@ const chartOption = computed(() => {
   const spacing = count > 5 ? 0.15 : 0.25 
   const center = (count - 1) / 2
   
-  selectedCompanies.value.forEach((company, index) => {
+  selectedCompanies.value.forEach((company) => {
     const data = careerPaths[company]
-    const offsetX = (index - center) * spacing
+    const offsetX = 0
     
     const lineCoords = data.levels.map(l => [l.coord[0] + offsetX, l.coord[1]])
     
@@ -332,7 +332,6 @@ const chartOption = computed(() => {
       nameTextStyle: { color: '#9ca3af', padding: [0, 0, 0, 10] },
       min: 0,    // 核心修改：锁定起点为 0，防止视线漂移
       max: 14.5, // 锁定终点
-      interval: 1,
       splitLine: { 
         show: true, 
         lineStyle: { type: 'dashed', color: '#f3f4f6', width: 1 } 
