@@ -157,10 +157,7 @@
           </div>
         </template>
 
-        <div v-else-if="activeMain === 'ranking'">
-          <h2>综合推荐排名</h2>
-          <div class="placeholder-card">这里预留综合评分与排名组件。</div>
-        </div>
+        <ComprehensiveRanking v-else-if="activeMain === 'ranking'" />
 
       </section>
     </main>
@@ -174,6 +171,7 @@ import { ref, computed } from 'vue'
 import CompanySalaryCompare from './components/CompanySalaryCompare.vue' // 原有的薪资区间图
 import SalaryEduBackground from './components/SalaryEduBackground.vue'     // 新增的学历经验图
 import CityDistribution from './components/CityDistribution.vue'
+import ComprehensiveRanking from './components/ComprehensiveRanking.vue'
 import CoinIncome from './components/CoinIncome.vue'
 import CompanyBasicInfo from './components/CompanyBasicInfo.vue'
 import EducationRequirementChart from './components/EducationRequirementChart.vue'

@@ -1,8 +1,12 @@
-<template> 
+<template>
   <div class="basic-layout">
     <!-- 左侧公司选择栏 -->
     <aside class="company-panel">
-      <div class="company-panel-title">⭐ 选择一家公司</div>
+      <div class="company-panel-title">
+        <span>⭐ 选择一家公司</span>
+        <span class="company-count">{{ companies.length }} 家</span>
+      </div>
+
       <div class="company-list">
         <button
           v-for="c in companies"
@@ -27,18 +31,39 @@
     <!-- 右侧信息展示区 -->
     <section class="info-panel">
       <header class="info-header">
-        <h2 class="info-title">
-          {{ activeCompany.nameZh }} · {{ activeCompany.nameEn }}
-        </h2>
+        <div class="info-title-row">
+          <h2 class="info-title">
+            {{ activeCompany.nameZh }} · {{ activeCompany.nameEn }}
+          </h2>
+          <span class="info-tag-pill">
+            {{ activeCompany.coreBizShort }}
+          </span>
+        </div>
+
         <p class="info-tagline">
           {{ activeCompany.tagline }}
         </p>
+
+        <div class="info-meta">
+          <span class="meta-pill">
+            🏙️ 总部：{{ activeCompany.hqCity }}
+          </span>
+          <span class="meta-pill">
+            💰 应届年包：{{ activeCompany.salaryRange }}
+          </span>
+          <span class="meta-pill">
+            📍 办公城市：{{ getOfficeSummary(activeCompany) }}
+          </span>
+        </div>
       </header>
 
       <div class="info-grid">
         <!-- 基础信息 -->
         <article class="info-card wide">
-          <div class="info-card-title">总部城市 & 典型业务线</div>
+          <div class="info-card-header">
+            <div class="info-card-icon">🏢</div>
+            <div class="info-card-title">总部城市 & 典型业务线</div>
+          </div>
           <div class="info-card-body">
             <p class="info-text-row">
               <span class="label">总部城市：</span>
@@ -57,7 +82,10 @@
 
         <!-- 主要业务 -->
         <article class="info-card">
-          <div class="info-card-title">主要业务</div>
+          <div class="info-card-header">
+            <div class="info-card-icon">📌</div>
+            <div class="info-card-title">主要业务</div>
+          </div>
           <div class="info-card-body">
             <p class="info-highlight">
               {{ activeCompany.coreBizShort }}
@@ -69,8 +97,11 @@
         </article>
 
         <!-- 估算薪资 -->
-        <article class="info-card">
-          <div class="info-card-title">应届技术岗年包</div>
+        <article class="info-card salary-card">
+          <div class="info-card-header">
+            <div class="info-card-icon">💰</div>
+            <div class="info-card-title">应届技术岗年包</div>
+          </div>
           <div class="info-card-body">
             <p class="salary-main">
               {{ activeCompany.salaryRange }}
@@ -86,7 +117,10 @@
 
         <!-- 办公城市 -->
         <article class="info-card">
-          <div class="info-card-title">主要办公城市</div>
+          <div class="info-card-header">
+            <div class="info-card-icon">📍</div>
+            <div class="info-card-title">主要办公城市</div>
+          </div>
           <div class="info-card-body">
             <p class="info-text-row">
               <span class="label">核心城市：</span>
@@ -99,8 +133,11 @@
         </article>
 
         <!-- 团队氛围 -->
-        <article class="info-card">
-          <div class="info-card-title">团队风格 / 工作氛围（主观印象）</div>
+        <article class="info-card wide">
+          <div class="info-card-header">
+            <div class="info-card-icon">👥</div>
+            <div class="info-card-title">团队风格 / 工作氛围（主观印象）</div>
+          </div>
           <div class="info-card-body">
             <p class="info-paragraph">
               {{ activeCompany.cultureDesc }}
@@ -118,12 +155,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 
-/**
- * 薪资 / 岗位等信息：
- * 薪资部分是参考你给的「大厂薪资地图 – 应届毕业生」里的月薪区间 × 月数，
- * 做了一个大致的区间折算，方便写成自然语言。
- * 不是精准计算，更适合作为可视化说明文字。
- */
 const companies = [
   {
     key: 'tencent',
@@ -139,7 +170,6 @@ const companies = [
     coreBizShort: '社交、游戏、云、广告',
     coreBizDesc:
       '以微信 / QQ 等社交产品为底盘，叠加游戏发行与自研、广告、电商与腾讯云，现金流稳定、业务线丰富，是综合型“超级平台公司”。',
-    // 对应薪资地图里「鹅厂 技术岗 24–28K · 15 薪」，折算约 36–42W，这里稍微留一点宽裕。
     salaryRange: '≈ 36 ~ 45 万 / 年',
     salaryNote:
       '参考薪资地图中“鹅厂技术岗 24–28K · 15 薪”的区间折算（约 36–42W），这里向上留了一点空间，只做课堂用的粗略估算。',
@@ -165,7 +195,6 @@ const companies = [
     coreBizShort: '内容分发、短视频、电商、AIGC',
     coreBizDesc:
       '以抖音 / 今日头条为核心流量入口，围绕内容分发、电商闭环、企业服务和 AIGC 产品展开，技术氛围浓、算法基建完备，是推荐与大数据方向的热门选择。',
-    // 对应“福报厂 / 宇宙厂”这一档，应届技术岗普遍在 40W+ 区间，这里给出略宽的范围。
     salaryRange: '≈ 40 ~ 50 万 / 年',
     salaryNote:
       '参考薪资地图中“福报厂 / 宇宙厂”技术岗 24–30K、16 薪及以上的档位，折算到 40W+，实际会随着业务线和绩效波动。',
@@ -216,7 +245,6 @@ const companies = [
     coreBizShort: '高性价比电商、跨境电商',
     coreBizDesc:
       '通过“多实惠、多乐趣”的电商模式快速崛起，近年来在 Temu 跨境业务上投入巨大，是增速非常快、业务变化也非常多的公司。',
-    // 对应薪资图中“某厂 技术岗 32–40K · 18 薪”一档，折算 57–72W 左右。
     salaryRange: '≈ 57 ~ 72 万 / 年',
     salaryNote:
       '根据薪资地图中高档位技术岗 32–40K · 18 薪估算，总包大致在 57–72W；属于图里应届技术岗偏高的一档。',
@@ -358,12 +386,21 @@ const activeKey = ref('tencent')
 const activeCompany = computed(
   () => companies.find((c) => c.key === activeKey.value) || companies[0]
 )
+
+// 办公城市小 summary：例如“北京、上海 等”
+const getOfficeSummary = (company) => {
+  if (!company?.officeCities?.length) return '暂无'
+  const [first, second, ...rest] = company.officeCities
+  if (!second) return first
+  if (rest.length === 0) return `${first}、${second}`
+  return `${first}、${second} 等`
+}
 </script>
 
 <style scoped>
 .basic-layout {
   display: flex;
-  gap: 20px;
+  gap: 22px;
 }
 
 /* 左侧公司列表 */
@@ -383,6 +420,28 @@ const activeCompany = computed(
   font-weight: 700;
   color: #111827;
   margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.company-count {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.company-panel {
+  width: 270px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
 }
 
 .company-list {
@@ -390,9 +449,11 @@ const activeCompany = computed(
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
-  max-height: 520px;
+  flex: 1;        /* 占满侧栏剩余空间 */
+  min-height: 0;  /* 允许内部滚动而不是撑开父容器 */
   padding-right: 4px;
 }
+
 
 .company-item {
   display: flex;
@@ -415,7 +476,7 @@ const activeCompany = computed(
 .company-item.active {
   background: var(--company-color);
   border-color: var(--company-color);
-  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.14);
 }
 
 .company-logo {
@@ -474,60 +535,111 @@ const activeCompany = computed(
 .info-panel {
   flex: 1;
   min-width: 0;
-  background: #ffffff;
-  border-radius: 16px;
+  background: radial-gradient(circle at top left, #eff6ff 0, #ffffff 42%);
+  border-radius: 18px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
-  padding: 18px 20px 18px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  padding: 20px 22px 18px;
   box-sizing: border-box;
 }
 
 .info-header {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.info-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .info-title {
   margin: 0;
-  font-size: 22px;         /* 标题字体放大 */
+  font-size: 22px;
   font-weight: 700;
   color: #111827;
 }
 
+.info-tag-pill {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #ecfdf3;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
 .info-tagline {
-  margin: 6px 0 0;
-  font-size: 15px;         /* 副标题也稍微放大一点 */
+  margin: 6px 0 8px;
+  font-size: 15px;
   color: #4b5563;
+}
+
+.info-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.meta-pill {
+  font-size: 12px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
 }
 
 /* 卡片布局 */
 .info-grid {
   display: grid;
-  grid-template-columns: 2fr 1.6fr;
+  grid-template-columns: 1.4fr 1.1fr;
   grid-auto-rows: minmax(120px, auto);
   gap: 12px;
+  margin-top: 10px;
 }
 
 .info-card {
   border-radius: 12px;
   border: 1px solid #e5e7eb;
-  background: #f9fafb;
+  background: #ffffff;
   padding: 12px 14px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .info-card.wide {
   grid-column: 1 / -1;
 }
 
+.info-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-card-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
 .info-card-title {
-  font-size: 15px;         /* 卡片标题放大 */
+  font-size: 15px;
   font-weight: 600;
   color: #111827;
-  margin-bottom: 6px;
 }
 
 .info-card-body {
-  font-size: 14px;         /* 正文字体放大 */
+  font-size: 14px;
   color: #374151;
   line-height: 1.8;
 }
@@ -561,8 +673,14 @@ const activeCompany = computed(
   color: #9ca3af;
 }
 
+/* 薪资卡片稍微强调一下 */
+.salary-card {
+  border-left: 3px solid #16a34a;
+  background: linear-gradient(135deg, #ecfdf3 0, #ffffff 40%);
+}
+
 .salary-main {
-  font-size: 20px;          /* 薪资数字更醒目 */
+  font-size: 20px;
   font-weight: 700;
   color: #16a34a;
   margin: 2px 0 4px;
