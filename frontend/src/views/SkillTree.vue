@@ -1,7 +1,7 @@
 <template>
   <div class="skill-galaxy-page">
     <div class="header">
-      <h2>技能星系 · Tech Galaxy</h2>
+      <h2>技能树 · Tech Galaxy</h2>
       <p class="subtitle">拖拽节点 · 点击测试掌握程度 · 探索技术栈</p>
     </div>
 
