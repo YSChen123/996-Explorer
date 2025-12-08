@@ -83,6 +83,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import * as echarts from 'echarts'
+import chinaJson from '../assets/chinamap.json' 
 
 // 状态
 const isMapLoaded = ref(false)
@@ -575,16 +576,15 @@ const getSurplusColor = (val) => {
 }
 
 // ===== 3. 生命周期 =====
-onMounted(async () => {
-  processRawData() 
-  try {
-    const response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
-    const mapJson = await response.json()
-    echarts.registerMap('china', mapJson)
-    isMapLoaded.value = true
-  } catch (error) {
-    console.error('地图数据加载失败:', error)
-  }
+onMounted(() => {
+  // 1. 先处理薪资数据
+  processRawData()
+
+  // 2. 直接用本地导入的 chinaJson 注册地图
+  echarts.registerMap('china', chinaJson)
+
+  // 3. 标记地图已加载
+  isMapLoaded.value = true
 })
 
 // ===== 4. ECharts Option =====
