@@ -457,10 +457,15 @@ const radarOption = computed(() => {
             value: calculateScore(selectedCompany.value),
             name: selectedCompany.value.company,
             areaStyle: {
-              color: echarts.graphic.RadialGradient(0.5, 0.5, 1, [
-                { offset: 0, color: radarColor + '33' },
-                { offset: 1, color: radarColor + '11' }
-              ])
+              // 修复：替换 echarts.graphic.RadialGradient(...) 为对象配置
+              color: {
+                type: 'radial',
+                x: 0.5, y: 0.5, r: 1,
+                colorStops: [
+                  { offset: 0, color: radarColor + '33' },
+                  { offset: 1, color: radarColor + '11' }
+                ]
+              }
             },
             lineStyle: {
               color: radarColor,
