@@ -181,9 +181,9 @@ import BenefitWordCloud from './components/BenefitWordCloud.vue'
 import SalaryCostMap from './components/SalaryCostMap.vue' 
 
 // 状态管理
-const activeMain = ref('jobFactors')        
-const activeSub = ref('salaryVsEduExp')  // 默认定位到新图表
-const openMain = ref('jobFactors')
+const activeMain = ref('companyIntro')        
+const activeSub = ref('companyBasic')  // 默认定位到新图表
+const openMain = ref('companyIntro')
 
 // 导航配置
 const mainNavItems = [

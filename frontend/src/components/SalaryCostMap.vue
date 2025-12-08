@@ -677,25 +677,26 @@ const mapOption = computed(() => {
 .dashboard-container {
   /* 关键：将高度设为视口高度的 85% - 90%，留出顶部空间 */
   height: 85vh;
-  width: 100%;
+   width: 100%;
   
   /* 关键：由本组件自己产生滚动条，无视父级限制 */
   overflow-y: auto; 
   -webkit-overflow-scrolling: touch; /* 丝滑滚动 */
   
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+   display: flex;
+   flex-direction: column;
+   gap: 24px;
   
-  padding: 24px;
+   padding: 24px;
   /* 关键：留出巨大的底部空间，防止被底部导航栏或浏览器边缘遮挡 */
   padding-bottom: 180px; 
   
-  box-sizing: border-box;
-  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background-color: #f3f4f6;
-  position: relative;
+   box-sizing: border-box;
+   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+   background-color: #f3f4f6;
+   position: relative;
 }
+
 
 /* ===== 2. 地图区域 (调小高度) ===== */
 .map-section {
@@ -712,6 +713,7 @@ const mapOption = computed(() => {
   display: flex;
   flex-direction: column;
 }
+
 
 .card-shadow {
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
