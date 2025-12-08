@@ -71,7 +71,7 @@
           <div v-if="activeSub === 'companyBasic'">
             <h2>大厂基本信息一览</h2>
             <p>
-              从总部城市、核心业务、典型应届薪资、主要办公城市和文化氛围几个维度，
+              从总部城市、核心业务、典型应届薪资、主要办公城市和工作氛围几个维度，
               快速感受 9 家互联网大厂的大致画像。
             </p>
             <CompanyBasicInfo />
@@ -270,10 +270,10 @@ function selectSub(mainKey, subKey) {
 }
 
 .sidebar {
-  width: 300px; /* 稍微加宽一点，让大字号不显得挤 */
+  width: 350px; /* 稍微加宽一点，让大字号不显得挤 */
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
-  padding: 28px 18px;
+  padding: 30px 20px;
   display: flex;
   flex-direction: column;
 }
@@ -309,7 +309,7 @@ function selectSub(mainKey, subKey) {
 }
 
 .brand-title {
-  font-size: 22px;   /* ✅ 标题字号变大 */
+  font-size: 24px;   /* ✅ 标题字号变大 */
   font-weight: 800;
   color: #111827;
   letter-spacing: 0.02em;
@@ -325,7 +325,7 @@ function selectSub(mainKey, subKey) {
 .nav {
   flex: 1;
   overflow-y: auto;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .nav-group {
@@ -339,7 +339,7 @@ function selectSub(mainKey, subKey) {
   border: none;
   cursor: pointer;
   color: #374151;
-  font-size: 19px;   /* ✅ 导航主字体变大 */
+  font-size: 22px;   /* ✅ 导航主字体变大 */
 }
 
 .nav-main {
