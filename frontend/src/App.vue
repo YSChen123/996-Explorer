@@ -90,7 +90,7 @@
           <div v-if="activeSub === 'salaryDist'">
             <h2>薪资区间分布</h2>
             <p>
-              对比各大厂在不同薪资档位（如 10-15k、15-20k 等）的岗位数量与金币堆积模拟。
+              对比各大厂在不同薪资档位（如 10-15k、15-20k 等）的岗位数量。
             </p>
             <CompanySalaryCompare />
 

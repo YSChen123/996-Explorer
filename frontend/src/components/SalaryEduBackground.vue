@@ -4,8 +4,7 @@
       <div class="card-header">
         <div class="header-top">
           <div class="header-title">
-            <h2>大厂晋升路径推演 (全景锁定版)</h2>
-            <span class="tag">0-14年 · 视图锁定</span>
+            <h2>大厂工龄、职位与薪资图</h2>
           </div>
         </div>
 
@@ -33,7 +32,6 @@
 
         <p class="desc">
           当前展示 <strong>{{ selectedCompanies.length }}</strong> 条路径。
-          <span class="tip-icon">🔒</span> <strong>视图已锁定</strong>：X轴固定从 0 年开始，切换公司时画面不再跳动。
         </p>
       </div>
 
@@ -102,7 +100,7 @@ const careerPaths = {
       { coord: [0.5, 38], name: '5级' }, 
       { coord: [1.0, 83], name: '6级' }, 
       { coord: [2.0, 118], name: '8级' }, 
-      { coord: [2.5, 440], name: '14级(极)' }, 
+      { coord: [2.5, 440], name: '14级' }, 
       { coord: [7.0, 136], name: 'T10' }, 
       { coord: [9.0, 180], name: '11级' }, 
       { coord: [10.0, 208], name: '12级' }

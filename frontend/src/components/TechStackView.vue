@@ -132,8 +132,8 @@
                   最大词数：
                   <input
                     type="range"
-                    min="10"
-                    max="50"
+                    min="5"
+                    max="20"
                     v-model="wordCloudMaxWords"
                     class="range-slider"
                   />
@@ -409,60 +409,77 @@ import * as d3 from 'd3' // 引入 D3 用于技能树
 // 1. 数据部分 (完全保留原 TechStackView 数据)
 // ==========================================
 
+// ==========================================
+// 1. 数据部分 - 修改了 techStack 的数量，使其各不相同
+// ==========================================
+
 const companies = ref([
   { id: 1, name: '阿里', color: '#FF6A00', techStack: [
+    // 12项
     { name: 'Java', weight: 10 }, { name: 'Spring Cloud', weight: 10 }, { name: '大数据', weight: 10 },
     { name: 'MySQL', weight: 9 }, { name: 'Redis', weight: 9 }, { name: 'Dubbo', weight: 9 },
     { name: '微服务', weight: 10 }, { name: '分布式系统', weight: 10 }, { name: '云计算', weight: 9 },
     { name: '容器化', weight: 8 }, { name: '中台架构', weight: 9 }, { name: 'OceanBase', weight: 8 }
   ]},
   { id: 2, name: '华为', color: '#FF0000', techStack: [
+    // 增加到 14项
     { name: 'C++', weight: 10 }, { name: 'Java', weight: 9 }, { name: 'Python', weight: 8 },
     { name: '嵌入式开发', weight: 10 }, { name: '5G', weight: 10 }, { name: '云计算', weight: 9 },
     { name: 'AI芯片', weight: 8 }, { name: '分布式系统', weight: 9 }, { name: '容器化', weight: 8 },
-    { name: '网络协议', weight: 9 }, { name: '鸿蒙系统', weight: 10 }, { name: '数据库', weight: 8 }
+    { name: '网络协议', weight: 9 }, { name: '鸿蒙系统', weight: 10 }, { name: '数据库', weight: 8 },
+    { name: 'GaussDB', weight: 9 }, { name: '欧拉系统', weight: 8 } // 新增
   ]},
   { id: 3, name: '京东', color: '#E6141E', techStack: [
+    // 减少到 10项
     { name: 'Java', weight: 10 }, { name: 'Spring', weight: 9 }, { name: '大数据', weight: 9 },
     { name: '分布式系统', weight: 10 }, { name: '微服务', weight: 9 }, { name: '云计算', weight: 8 },
-    { name: '容器化', weight: 8 }, { name: '物流系统', weight: 9 }, { name: '推荐算法', weight: 8 },
-    { name: '供应链', weight: 9 }, { name: '高并发', weight: 10 }, { name: '消息队列', weight: 8 }
+    { name: '容器化', weight: 8 }, { name: '物流系统', weight: 9 }, { name: '供应链', weight: 9 }, 
+    { name: '高并发', weight: 10 }
   ]},
   { id: 4, name: '百度', color: '#2932E1', techStack: [
+    // 增加到 13项
     { name: 'Python', weight: 9 }, { name: 'C++', weight: 8 }, { name: 'Java', weight: 7 },
     { name: '机器学习', weight: 10 }, { name: '深度学习', weight: 10 }, { name: '自然语言处理', weight: 9 },
     { name: '搜索引擎', weight: 10 }, { name: '大数据', weight: 9 }, { name: '云计算', weight: 8 },
-    { name: '推荐算法', weight: 9 }, { name: '知识图谱', weight: 8 }, { name: '自动驾驶', weight: 9 }
+    { name: '推荐算法', weight: 9 }, { name: '知识图谱', weight: 8 }, { name: '自动驾驶', weight: 9 },
+    { name: 'PaddlePaddle', weight: 9 } // 新增
   ]},
   { id: 5, name: '美团', color: '#FFB300', techStack: [
+    // 11项
     { name: 'Java', weight: 10 }, { name: 'Go', weight: 8 }, { name: 'Python', weight: 7 },
     { name: '大数据', weight: 9 }, { name: '分布式系统', weight: 10 }, { name: '微服务', weight: 10 },
     { name: '容器化', weight: 9 }, { name: '推荐算法', weight: 9 }, { name: '地理位置', weight: 9 },
-    { name: '高并发', weight: 10 }, { name: '实时计算', weight: 8 }, { name: '消息队列', weight: 8 }
+    { name: '高并发', weight: 10 }, { name: '实时计算', weight: 8 }
   ]},
   { id: 6, name: '腾讯', color: '#07C160', techStack: [
+    // 增加到 14项
     { name: 'C++', weight: 9 }, { name: 'Go', weight: 8 }, { name: 'Java', weight: 8 },
     { name: 'Python', weight: 8 }, { name: '大数据', weight: 9 }, { name: '云计算', weight: 9 },
     { name: '微服务', weight: 9 }, { name: '游戏引擎', weight: 8 }, { name: '音视频', weight: 9 },
-    { name: '即时通讯', weight: 10 }, { name: '容器化', weight: 8 }, { name: '小程序', weight: 9 }
+    { name: '即时通讯', weight: 10 }, { name: '容器化', weight: 8 }, { name: '小程序', weight: 9 },
+    { name: 'Unreal Engine', weight: 8 }, { name: 'WeChat', weight: 10 } // 新增
   ]},
   { id: 7, name: '网易', color: '#D10A1B', techStack: [
+    // 12项 (保持不变)
     { name: 'C++', weight: 9 }, { name: 'Java', weight: 8 }, { name: 'Python', weight: 7 },
     { name: '游戏开发', weight: 10 }, { name: '大数据', weight: 8 }, { name: '云计算', weight: 8 },
     { name: '容器化', weight: 7 }, { name: '推荐算法', weight: 8 }, { name: '音视频', weight: 8 },
     { name: '网络安全', weight: 8 }, { name: '数据库', weight: 8 }, { name: '消息队列', weight: 7 }
   ]},
   { id: 8, name: '小米', color: '#FF6900', techStack: [
+    // 11项
     { name: 'Java', weight: 9 }, { name: 'Kotlin', weight: 8 }, { name: 'C++', weight: 8 },
     { name: 'Android开发', weight: 10 }, { name: 'IoT', weight: 10 }, { name: '大数据', weight: 8 },
     { name: '云计算', weight: 8 }, { name: '嵌入式开发', weight: 9 }, { name: '智能硬件', weight: 9 },
-    { name: '容器化', weight: 7 }, { name: '移动端', weight: 10 }, { name: '分布式系统', weight: 8 }
+    { name: '移动端', weight: 10 }, { name: '分布式系统', weight: 8 }
   ]},
   { id: 9, name: '字节', color: '#25F4EE', techStack: [
+    // 13项
     { name: 'Go', weight: 9 }, { name: 'Python', weight: 9 }, { name: 'Java', weight: 8 },
     { name: 'React', weight: 8 }, { name: 'Vue.js', weight: 7 }, { name: '大数据', weight: 10 },
     { name: '推荐算法', weight: 10 }, { name: '微服务', weight: 9 }, { name: '容器化', weight: 8 },
-    { name: '音视频处理', weight: 8 }, { name: '高并发', weight: 10 }, { name: '分布式系统', weight: 9 }
+    { name: '音视频处理', weight: 8 }, { name: '高并发', weight: 10 }, { name: '分布式系统', weight: 9 },
+    { name: 'Flutter', weight: 8 } // 新增
   ]}
 ])
 
@@ -668,7 +685,7 @@ const currentView = ref('wordcloud')
 const darkMode = ref(false)
 
 // 图表配置
-const wordCloudMaxWords = ref(30)
+const wordCloudMaxWords = ref(20)
 const normalizeRadar = ref(true)
 const barSortBy = ref('frequency')
 const tableShowWeights = ref(false)
