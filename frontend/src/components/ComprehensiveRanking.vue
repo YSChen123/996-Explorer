@@ -451,7 +451,7 @@ const rankingList = [
 }
 
 .ranking-name-zh {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
   color: #111827;
   display: flex;
@@ -460,7 +460,7 @@ const rankingList = [
 }
 
 .ranking-tag-level {
-  font-size: 12px;
+  font-size: 14px;
   color: #1f2937;
   background: #e5e7eb;
   border-radius: 999px;
@@ -481,7 +481,7 @@ const rankingList = [
 }
 
 .ranking-chip {
-  font-size: 12px;
+  font-size: 14px;
   padding: 3px 10px;
   border-radius: 999px;
   background: #eff6ff;
@@ -491,15 +491,15 @@ const rankingList = [
 /* 描述文案 */
 .ranking-desc {
   margin: 0;
-  font-size: 13px;
+  font-size: 18px;
   line-height: 1.7;
   color: #4b5563;
 }
 
 /* 右侧评分条区域 */
 .ranking-score-panel {
-  width: 280px;
-  min-width: 240px;
+  width: 300px;
+  min-width: 260px;
   display: flex;
   flex-direction: column;
   gap: 8px;
